@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "399042270577",
+    "project_id": "miplatov-bb2aa",
+    "storage_bucket": "miplatov-bb2aa.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:399042270577:android:32cae18eb8425ea5d992d0",
+        "android_client_info": {
+          "package_name": "me.jesusurbinez.miplatov"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDkJYgf7F6KF9mxsB-EoXePsonAJ1HwVxc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

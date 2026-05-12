@@ -1,0 +1,39 @@
+# Documentación del Proyecto MiPlatoV
+
+## Arquitectura
+El proyecto ha sido refactorizado siguiendo el patrón de arquitectura **MVVM (Model-View-ViewModel)** recomendado por Google.
+
+### Estructura de Paquetes
+- `me.jesusurbinez.miplatov`: Paquete base.
+- `me.jesusurbinez.miplatov.ui`: Contiene todo lo relacionado con la interfaz de usuario.
+    - `screens`: Pantallas individuales de la aplicación (Jetpack Compose).
+    - `viewmodels`: Lógica de negocio y gestión de estado de las pantallas.
+    - `components`: Componentes de UI reutilizables.
+    - `navigation`: Configuración de la navegación mediante `navigation-compose`.
+    - `theme`: Definición del sistema de diseño (colores, tipografía, etc.).
+- `me.jesusurbinez.miplatov.data`: Capa de datos (Modelos y Repositorios).
+    - `model`: Clases de datos.
+    - `repository`: Fuentes de verdad para los datos.
+
+## Tecnologías Utilizadas
+- **Jetpack Compose**: Para la construcción de la UI moderna y declarativa.
+- **Kotlin Coroutines & Flow**: Para el manejo de flujos de datos asíncronos en los ViewModels.
+- **Navigation Compose**: Para la navegación entre pantallas.
+- **ViewModel Lifecycle**: Para la gestión persistente del estado de la UI.
+- **Material 3**: Para el diseño visual siguiendo las últimas guías de Google.
+
+## Pantallas Implementadas
+1. **Splash**: Pantalla de carga inicial.
+2. **Login/Register**: Gestión de autenticación de usuarios.
+3. **Dashboard**: Resumen diario de calorías y macros.
+4. **FoodSearch**: Búsqueda de alimentos asistida por IA.
+5. **NutritionalHistory**: Historial detallado de consumos pasados.
+6. **Profile**: Información del usuario y ajustes.
+7. **NutritionalPlans**: Configuración de metas y planes de alimentación.
+8. **CameraAI**: Interfaz para escaneo de alimentos (Simulado).
+9. **FoodDetail**: Información detallada de un alimento específico.
+
+## Guía de Desarrollo
+- Cada nueva pantalla debe tener su correspondiente `ViewModel` en el paquete `ui.viewmodels`.
+- El estado de la UI se expone mediante `StateFlow` y se consume en la pantalla usando `collectAsState()`.
+- La navegación se centraliza en `MiPlatoApp.kt`.
