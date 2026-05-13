@@ -1,11 +1,18 @@
 package me.jesusurbinez.miplatov.ui.screens
 
 import android.Manifest
+import android.graphics.Bitmap
 import android.util.Log
 import androidx.camera.core.CameraSelector
+import androidx.camera.core.ImageCapture
+import androidx.camera.core.ImageCaptureException
+import androidx.camera.core.ImageProxy
 import androidx.camera.core.Preview
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
@@ -14,6 +21,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowBack
 import androidx.compose.material.icons.filled.*
+import androidx.compose.material.icons.rounded.Check
+import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material.icons.rounded.FlashOn
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -27,11 +36,14 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.isGranted
 import com.google.accompanist.permissions.rememberPermissionState
+import me.jesusurbinez.miplatov.data.ScannedFood
 import me.jesusurbinez.miplatov.ui.viewmodels.CameraAIViewModel
+import me.jesusurbinez.miplatov.ui.viewmodels.CameraUIState
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalPermissionsApi::class)
 @Composable
@@ -41,6 +53,9 @@ fun CameraAIScreen(
     viewModel: CameraAIViewModel = viewModel()
 ) {
     val cameraPermissionState = rememberPermissionState(Manifest.permission.CAMERA)
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val context = LocalContext.current
+    val imageCapture = remember { ImageCapture.Builder().build() }
 
     LaunchedEffect(Unit) {
         cameraPermissionState.launchPermissionRequest()
@@ -52,7 +67,7 @@ fun CameraAIScreen(
         .padding(innerPadding)
     ) {
         if (cameraPermissionState.status.isGranted) {
-            CameraPreview()
+            CameraPreview(imageCapture = imageCapture)
         } else {
             Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                 Text("Permiso de cámara no concedido", color = Color.White)
@@ -83,32 +98,63 @@ fun CameraAIScreen(
                     )
                 }
 
-                // AI Tags simulation
-                AITag(
-                    label = "Salmón Parrilla",
-                    confidence = "94%",
-                    modifier = Modifier.align(Alignment.TopCenter).offset(y = 60.dp, x = (-40).dp)
-                )
-                
-                AITag(
-                    label = "Tomate Cherry",
-                    confidence = "88%",
-                    isPrimary = false,
-                    modifier = Modifier.align(Alignment.BottomCenter).offset(y = (-60).dp, x = 40.dp)
-                )
+                // AI Tags simulation (only if idle)
+                if (uiState is CameraUIState.Idle) {
+                    AITag(
+                        label = "Salmón Parrilla",
+                        confidence = "94%",
+                        modifier = Modifier.align(Alignment.TopCenter).offset(y = 60.dp, x = (-40).dp)
+                    )
+                    
+                    AITag(
+                        label = "Tomate Cherry",
+                        confidence = "88%",
+                        isPrimary = false,
+                        modifier = Modifier.align(Alignment.BottomCenter).offset(y = (-60).dp, x = 40.dp)
+                    )
+                }
 
-                // Instruction
+                // Instruction / Result
                 Surface(
                     modifier = Modifier.align(Alignment.TopCenter).padding(top = 32.dp),
                     color = Color.Black.copy(alpha = 0.4f),
                     shape = CircleShape
                 ) {
                     Text(
-                        text = "Enfoca tu plato para analizarlo",
+                        text = when (uiState) {
+                            is CameraUIState.Idle -> "Enfoca tu plato para analizarlo"
+                            is CameraUIState.Loading -> "Analizando plato..."
+                            is CameraUIState.Success -> "¡Plato analizado!"
+                            is CameraUIState.Error -> (uiState as CameraUIState.Error).message
+                        },
                         modifier = Modifier.padding(horizontal = 24.dp, vertical = 8.dp),
                         color = Color.White,
                         style = MaterialTheme.typography.bodyMedium
                     )
+                }
+
+                // Result Card
+                val food = (uiState as? CameraUIState.Success)?.food
+                androidx.compose.animation.AnimatedVisibility(
+                    visible = food != null,
+                    enter = fadeIn(),
+                    exit = fadeOut(),
+                    modifier = Modifier.align(Alignment.Center)
+                ) {
+                    if (food != null) {
+                        ResultCard(
+                            food = food,
+                            onConfirm = {
+                                viewModel.confirmFood(food)
+                                onBack()
+                            },
+                            onCancel = { viewModel.resetState() }
+                        )
+                    }
+                }
+
+                if (uiState is CameraUIState.Loading) {
+                    CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
                 }
             }
 
@@ -132,12 +178,17 @@ fun CameraAIScreen(
                     modifier = Modifier.size(80.dp).border(4.dp, Color.White, CircleShape),
                     color = Color.Transparent,
                     shape = CircleShape,
+                    enabled = uiState is CameraUIState.Idle,
                     onClick = {
-                        viewModel.captureFood()
-                        onBack()
+                        takePicture(imageCapture, context) { bitmap ->
+                            viewModel.scanImage(bitmap)
+                        }
                     }
                 ) {
-                    Box(modifier = Modifier.padding(6.dp).fillMaxSize().background(Color.White, CircleShape))
+                    Box(modifier = Modifier.padding(6.dp).fillMaxSize().background(
+                        if (uiState is CameraUIState.Idle) Color.White else Color.Gray, 
+                        CircleShape
+                    ))
                 }
 
                 IconButton(
@@ -151,8 +202,84 @@ fun CameraAIScreen(
     }
 }
 
+private fun takePicture(
+    imageCapture: ImageCapture,
+    context: android.content.Context,
+    onImageCaptured: (Bitmap) -> Unit
+) {
+    imageCapture.takePicture(
+        ContextCompat.getMainExecutor(context),
+        object : ImageCapture.OnImageCapturedCallback() {
+            override fun onCaptureSuccess(image: ImageProxy) {
+                val bitmap = image.toBitmap()
+                image.close()
+                onImageCaptured(bitmap)
+            }
+
+            override fun onError(exception: ImageCaptureException) {
+                Log.e("CameraAIScreen", "Capture failed", exception)
+            }
+        }
+    )
+}
+
 @Composable
-fun CameraPreview() {
+fun ResultCard(food: ScannedFood, onConfirm: () -> Unit, onCancel: () -> Unit) {
+    Card(
+        modifier = Modifier.padding(16.dp).width(300.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+        shape = RoundedCornerShape(24.dp),
+        elevation = CardDefaults.cardElevation(8.dp)
+    ) {
+        Column(modifier = Modifier.padding(20.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+            Text(food.name, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
+            Spacer(Modifier.height(8.dp))
+            Text("${food.calories} kcal", style = MaterialTheme.typography.headlineMedium, color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.Bold)
+            
+            Spacer(Modifier.height(16.dp))
+            
+            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
+                MacroMiniItem("Prot", "${food.protein}g")
+                MacroMiniItem("Carbs", "${food.carbs}g")
+                MacroMiniItem("Grasas", "${food.fat}g")
+            }
+
+            Spacer(Modifier.height(24.dp))
+
+            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                OutlinedButton(
+                    onClick = onCancel,
+                    modifier = Modifier.weight(1f),
+                    shape = RoundedCornerShape(12.dp)
+                ) {
+                    Icon(Icons.Rounded.Close, contentDescription = null)
+                    Spacer(Modifier.width(4.dp))
+                    Text("Cancelar")
+                }
+                Button(
+                    onClick = onConfirm,
+                    modifier = Modifier.weight(1f),
+                    shape = RoundedCornerShape(12.dp)
+                ) {
+                    Icon(Icons.Rounded.Check, contentDescription = null)
+                    Spacer(Modifier.width(4.dp))
+                    Text("Añadir")
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun MacroMiniItem(label: String, value: String) {
+    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        Text(label, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.outline)
+        Text(value, style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.Bold)
+    }
+}
+
+@Composable
+fun CameraPreview(imageCapture: ImageCapture) {
     val lifecycleOwner = LocalLifecycleOwner.current
     val context = LocalContext.current
     val cameraProviderFuture = remember { ProcessCameraProvider.getInstance(context) }
@@ -174,7 +301,8 @@ fun CameraPreview() {
                     cameraProvider.bindToLifecycle(
                         lifecycleOwner,
                         cameraSelector,
-                        preview
+                        preview,
+                        imageCapture
                     )
                 } catch (ex: Exception) {
                     Log.e("CameraPreview", "Use case binding failed", ex)
