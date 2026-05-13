@@ -27,87 +27,88 @@ import androidx.compose.runtime.collectAsState
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProfileScreen(
+    innerPadding: PaddingValues = PaddingValues(0.dp),
     onLogout: () -> Unit,
     viewModel: ProfileViewModel = viewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
-    Scaffold(
-        topBar = { /* Minimalist: No Top Bar */ }
-    ) { padding ->
-        Column(
-            modifier = Modifier.fillMaxSize().padding(padding).padding(20.dp).verticalScroll(rememberScrollState()),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            // Profile Header
-            Box(modifier = Modifier.padding(bottom = 32.dp)) {
-                Surface(
-                    modifier = Modifier.size(128.dp),
-                    shape = CircleShape,
-                    color = MaterialTheme.colorScheme.surfaceVariant,
-                    shadowElevation = 4.dp
-                ) {
-                    // Placeholder for user photo
-                    Icon(
-                        Icons.Default.Person,
-                        contentDescription = null,
-                        modifier = Modifier.fillMaxSize().padding(24.dp),
-                        tint = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                }
-                Surface(
-                    modifier = Modifier.align(Alignment.BottomEnd).size(36.dp),
-                    color = MaterialTheme.colorScheme.primary,
-                    shape = CircleShape,
-                    shadowElevation = 2.dp
-                ) {
-                    Icon(Icons.Default.Edit, contentDescription = null, modifier = Modifier.padding(8.dp).size(16.dp), tint = MaterialTheme.colorScheme.onPrimary)
-                }
-            }
-            
-            Text(text = uiState.userName, style = MaterialTheme.typography.headlineLarge, fontWeight = FontWeight.Bold)
-            Text(text = "Miembro desde ${uiState.memberSince}", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
-
-            Spacer(Modifier.height(32.dp))
-
-            // Stats Bento Grid
-            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                ProfileStatCard(label = "Calorías", value = uiState.calories, icon = Icons.Default.LocalFireDepartment, color = MaterialTheme.colorScheme.primary, modifier = Modifier.weight(1f))
-                ProfileStatCard(label = "Proteína", value = uiState.protein, icon = Icons.Default.FitnessCenter, color = MaterialTheme.colorScheme.tertiary, modifier = Modifier.weight(1f))
-                ProfileStatCard(label = "Hidratación", value = uiState.hydration, icon = Icons.Default.WaterDrop, color = MaterialTheme.colorScheme.secondary, modifier = Modifier.weight(1f))
-            }
-
-            Spacer(Modifier.height(32.dp))
-
-            // Options List
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(innerPadding)
+            .padding(20.dp)
+            .verticalScroll(rememberScrollState()),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        // Profile Header
+        Box(modifier = Modifier.padding(bottom = 32.dp)) {
             Surface(
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(16.dp),
-                color = MaterialTheme.colorScheme.surface,
-                shadowElevation = 1.dp
+                modifier = Modifier.size(128.dp),
+                shape = CircleShape,
+                color = MaterialTheme.colorScheme.surfaceVariant,
+                shadowElevation = 4.dp
             ) {
-                Column {
-                    ProfileOption(label = "Datos personales", icon = Icons.Default.Person)
-                    HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp), color = MaterialTheme.colorScheme.outlineVariant)
-                    ProfileOption(label = "Metas", icon = Icons.Default.Flag)
-                    HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp), color = MaterialTheme.colorScheme.outlineVariant)
-                    ProfileOption(label = "Notificaciones", icon = Icons.Default.Notifications)
-                }
+                // Placeholder for user photo
+                Icon(
+                    Icons.Default.Person,
+                    contentDescription = null,
+                    modifier = Modifier.fillMaxSize().padding(24.dp),
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant
+                )
             }
-
-            Spacer(Modifier.height(32.dp))
-
-            // Logout Button
-            Button(
-                onClick = { viewModel.logout(onLogout) },
-                modifier = Modifier.fillMaxWidth().height(56.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.errorContainer, contentColor = MaterialTheme.colorScheme.onErrorContainer),
-                shape = RoundedCornerShape(12.dp)
+            Surface(
+                modifier = Modifier.align(Alignment.BottomEnd).size(36.dp),
+                color = MaterialTheme.colorScheme.primary,
+                shape = CircleShape,
+                shadowElevation = 2.dp
             ) {
-                Icon(Icons.Default.Logout, contentDescription = null)
-                Spacer(Modifier.width(12.dp))
-                Text("Cerrar Sesión", style = MaterialTheme.typography.titleLarge)
+                Icon(Icons.Default.Edit, contentDescription = null, modifier = Modifier.padding(8.dp).size(16.dp), tint = MaterialTheme.colorScheme.onPrimary)
             }
+        }
+        
+        Text(text = uiState.userName, style = MaterialTheme.typography.headlineLarge, fontWeight = FontWeight.Bold)
+        Text(text = "Miembro desde ${uiState.memberSince}", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+
+        Spacer(Modifier.height(32.dp))
+
+        // Stats Bento Grid
+        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+            ProfileStatCard(label = "Calorías", value = uiState.calories, icon = Icons.Default.LocalFireDepartment, color = MaterialTheme.colorScheme.primary, modifier = Modifier.weight(1f))
+            ProfileStatCard(label = "Proteína", value = uiState.protein, icon = Icons.Default.FitnessCenter, color = MaterialTheme.colorScheme.tertiary, modifier = Modifier.weight(1f))
+            ProfileStatCard(label = "Hidratación", value = uiState.hydration, icon = Icons.Default.WaterDrop, color = MaterialTheme.colorScheme.secondary, modifier = Modifier.weight(1f))
+        }
+
+        Spacer(Modifier.height(32.dp))
+
+        // Options List
+        Surface(
+            modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(16.dp),
+            color = MaterialTheme.colorScheme.surface,
+            shadowElevation = 1.dp
+        ) {
+            Column {
+                ProfileOption(label = "Datos personales", icon = Icons.Default.Person)
+                HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp), color = MaterialTheme.colorScheme.outlineVariant)
+                ProfileOption(label = "Metas", icon = Icons.Default.Flag)
+                HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp), color = MaterialTheme.colorScheme.outlineVariant)
+                ProfileOption(label = "Notificaciones", icon = Icons.Default.Notifications)
+            }
+        }
+
+        Spacer(Modifier.height(32.dp))
+
+        // Logout Button
+        Button(
+            onClick = { viewModel.logout(onLogout) },
+            modifier = Modifier.fillMaxWidth().height(56.dp),
+            colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.errorContainer, contentColor = MaterialTheme.colorScheme.onErrorContainer),
+            shape = RoundedCornerShape(12.dp)
+        ) {
+            Icon(Icons.Default.Logout, contentDescription = null)
+            Spacer(Modifier.width(12.dp))
+            Text("Cerrar Sesión", style = MaterialTheme.typography.titleLarge)
         }
     }
 }

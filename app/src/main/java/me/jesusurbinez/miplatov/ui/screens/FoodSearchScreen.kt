@@ -28,6 +28,7 @@ import me.jesusurbinez.miplatov.ui.viewmodels.AIResult
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun FoodSearchScreen(
+    innerPadding: PaddingValues = PaddingValues(0.dp),
     onFoodClick: (String) -> Unit,
     onCameraClick: () -> Unit,
     onBack: () -> Unit,
@@ -35,72 +36,66 @@ fun FoodSearchScreen(
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
-    Scaffold(
-        topBar = {
-            // No top bar for minimalist design
-        }
-    ) { padding ->
-        Column(
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(innerPadding)
+            .padding(20.dp)
+    ) {
+        // Search Bar
+        OutlinedTextField(
+            value = uiState.searchQuery,
+            onValueChange = { viewModel.onSearchQueryChange(it) },
             modifier = Modifier
-                .fillMaxSize()
-                .padding(padding)
-                .padding(20.dp)
-        ) {
-            // Search Bar
-            OutlinedTextField(
-                value = uiState.searchQuery,
-                onValueChange = { viewModel.onSearchQueryChange(it) },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(56.dp),
-                placeholder = { Text("Buscar alimentos...", color = MaterialTheme.colorScheme.outline) },
-                leadingIcon = { Icon(Icons.Default.Search, contentDescription = null, tint = MaterialTheme.colorScheme.outline) },
-                trailingIcon = {
-                    IconButton(onClick = onCameraClick) {
-                        Icon(Icons.Default.PhotoCamera, contentDescription = "Camera", tint = MaterialTheme.colorScheme.primary)
-                    }
-                },
-                shape = RoundedCornerShape(12.dp),
-                colors = OutlinedTextFieldDefaults.colors(
-                    unfocusedContainerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f),
-                    focusedContainerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f),
-                    unfocusedBorderColor = Color.Transparent,
-                    focusedBorderColor = MaterialTheme.colorScheme.primary
-                )
+                .fillMaxWidth()
+                .height(56.dp),
+            placeholder = { Text("Buscar alimentos...", color = MaterialTheme.colorScheme.outline) },
+            leadingIcon = { Icon(Icons.Default.Search, contentDescription = null, tint = MaterialTheme.colorScheme.outline) },
+            trailingIcon = {
+                IconButton(onClick = onCameraClick) {
+                    Icon(Icons.Default.PhotoCamera, contentDescription = "Camera", tint = MaterialTheme.colorScheme.primary)
+                }
+            },
+            shape = RoundedCornerShape(12.dp),
+            colors = OutlinedTextFieldDefaults.colors(
+                unfocusedContainerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f),
+                focusedContainerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f),
+                unfocusedBorderColor = Color.Transparent,
+                focusedBorderColor = MaterialTheme.colorScheme.primary
             )
+        )
 
-            Spacer(Modifier.height(24.dp))
+        Spacer(Modifier.height(24.dp))
 
-            // Suggested Chips
-            Text(text = "Sugerencias", style = MaterialTheme.typography.headlineMedium, modifier = Modifier.padding(bottom = 12.dp))
-            LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                items(uiState.suggestions) { item ->
-                    SuggestionChip(label = item, onClick = { viewModel.onSearchQueryChange(item) })
-                }
+        // Suggested Chips
+        Text(text = "Sugerencias", style = MaterialTheme.typography.headlineMedium, modifier = Modifier.padding(bottom = 12.dp))
+        LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            items(uiState.suggestions) { item ->
+                SuggestionChip(label = item, onClick = { viewModel.onSearchQueryChange(item) })
             }
+        }
 
-            Spacer(Modifier.height(24.dp))
+        Spacer(Modifier.height(24.dp))
 
-            // AI Results Section
-            Row(
-                modifier = Modifier.fillMaxWidth().padding(bottom = 12.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(text = "Resultados Recientes (IA)", style = MaterialTheme.typography.headlineMedium)
-            }
+        // AI Results Section
+        Row(
+            modifier = Modifier.fillMaxWidth().padding(bottom = 12.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(text = "Resultados Recientes (IA)", style = MaterialTheme.typography.headlineMedium)
+        }
 
-            LazyVerticalGrid(
-                columns = GridCells.Fixed(1),
-                verticalArrangement = Arrangement.spacedBy(16.dp),
-                modifier = Modifier.fillMaxSize()
-            ) {
-                items(uiState.aiResults) { result ->
-                    AICard(result, onClick = { 
-                        viewModel.addFood(result)
-                        onBack()
-                    })
-                }
+        LazyVerticalGrid(
+            columns = GridCells.Fixed(1),
+            verticalArrangement = Arrangement.spacedBy(16.dp),
+            modifier = Modifier.fillMaxSize()
+        ) {
+            items(uiState.aiResults) { result ->
+                AICard(result, onClick = { 
+                    viewModel.addFood(result)
+                    onBack()
+                })
             }
         }
     }

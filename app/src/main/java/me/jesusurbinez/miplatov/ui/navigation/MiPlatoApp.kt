@@ -1,5 +1,7 @@
 package me.jesusurbinez.miplatov.ui.navigation
 
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
@@ -46,6 +48,7 @@ fun MiPlatoApp() {
         )
 
         Scaffold(
+            modifier = Modifier.fillMaxSize(),
             bottomBar = {
                 if (showBottomBar) {
                     MiPlatoBottomBar(navController, currentRoute)
@@ -55,7 +58,9 @@ fun MiPlatoApp() {
             NavHost(
                 navController = navController,
                 startDestination = Screen.Splash.route,
-                modifier = Modifier.padding(innerPadding)
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(innerPadding)
             ) {
                 composable(Screen.Splash.route) {
                     SplashScreen(
@@ -106,11 +111,13 @@ fun MiPlatoApp() {
                     NutritionalPlansScreen()
                 }
                 composable(Screen.Profile.route) {
-                    ProfileScreen(onLogout = {
-                        navController.navigate(Screen.Login.route) {
-                            popUpTo(0) { inclusive = true }
+                    ProfileScreen(
+                        onLogout = {
+                            navController.navigate(Screen.Login.route) {
+                                popUpTo(0) { inclusive = true }
+                            }
                         }
-                    })
+                    )
                 }
             }
         }

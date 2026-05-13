@@ -1,5 +1,13 @@
 package me.jesusurbinez.miplatov.ui.screens
 
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.camera.core.CameraSelector
+import androidx.camera.core.ImageCapture
+import androidx.camera.core.ImageCaptureException
+import androidx.camera.core.Preview
+import androidx.camera.lifecycle.ProcessCameraProvider
+import androidx.camera.view.PreviewView
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
@@ -8,23 +16,113 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-
+import androidx.compose.ui.viewinterop.AndroidView
+import androidx.core.content.ContextCompat
+import android.content.pm.PackageManager
 import androidx.lifecycle.viewmodel.compose.viewModel
 import me.jesusurbinez.miplatov.ui.viewmodels.CameraAIViewModel
+import java.util.concurrent.ExecutorService
+import java.util.concurrent.Executors
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun CameraAIScreen(onBack: () -> Unit, viewModel: CameraAIViewModel = viewModel()) {
-    Box(modifier = Modifier.fillMaxSize().background(Color.Black)) {
-        // Camera Preview Simulation
-        Box(modifier = Modifier.fillMaxSize().background(Color.DarkGray))
+fun CameraAIScreen(
+    onBack: () -> Unit,
+    innerPadding: PaddingValues = PaddingValues(0.dp),
+    viewModel: CameraAIViewModel = viewModel()
+) {
+    val context = LocalContext.current
+    val lifecycleOwner = LocalLifecycleOwner.current
+    
+    var hasCameraPermission by remember {
+        mutableStateOf(
+            ContextCompat.checkSelfPermission(
+                context,
+                android.Manifest.permission.CAMERA
+            ) == PackageManager.PERMISSION_GRANTED
+        )
+    }
+
+    // Correct permission check
+    LaunchedEffect(Unit) {
+        hasCameraPermission = ContextCompat.checkSelfPermission(
+            context,
+            android.Manifest.permission.CAMERA
+        ) == android.content.pm.PackageManager.PERMISSION_GRANTED
+    }
+
+    val launcher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission(),
+        onResult = { granted ->
+            hasCameraPermission = granted
+        }
+    )
+
+    LaunchedEffect(Unit) {
+        if (!hasCameraPermission) {
+            launcher.launch(android.Manifest.permission.CAMERA)
+        }
+    }
+
+    val cameraProviderFuture = remember { ProcessCameraProvider.getInstance(context) }
+    val previewView = remember { PreviewView(context) }
+    val imageCapture = remember { ImageCapture.Builder().build() }
+    val cameraExecutor: ExecutorService = remember { Executors.newSingleThreadExecutor() }
+    
+    var flashMode by remember { mutableIntStateOf(ImageCapture.FLASH_MODE_OFF) }
+
+    LaunchedEffect(hasCameraPermission, flashMode) {
+        if (hasCameraPermission) {
+            val cameraProvider = cameraProviderFuture.get()
+            val preview = Preview.Builder().build().also {
+                it.setSurfaceProvider(previewView.surfaceProvider)
+            }
+
+            imageCapture.flashMode = flashMode
+
+            val cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
+
+            try {
+                cameraProvider.unbindAll()
+                cameraProvider.bindToLifecycle(
+                    lifecycleOwner,
+                    cameraSelector,
+                    preview,
+                    imageCapture
+                )
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
+    }
+
+    Box(modifier = Modifier
+        .fillMaxSize()
+        .background(Color.Black)
+        .padding(innerPadding)
+    ) {
+        if (hasCameraPermission) {
+            AndroidView(
+                factory = { previewView },
+                modifier = Modifier.fillMaxSize()
+            )
+        } else {
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center
+            ) {
+                Text("Permiso de cámara denegado", color = Color.White)
+            }
+        }
 
         // UI Overlay
         Column(modifier = Modifier.fillMaxSize()) {
@@ -50,19 +148,14 @@ fun CameraAIScreen(onBack: () -> Unit, viewModel: CameraAIViewModel = viewModel(
                     )
                 }
 
-                // AI Tags simulation
-                AITag(
-                    label = "Salmón Parrilla",
-                    confidence = "94%",
-                    modifier = Modifier.align(Alignment.TopCenter).offset(y = 60.dp, x = (-40).dp)
-                )
-                
-                AITag(
-                    label = "Tomate Cherry",
-                    confidence = "88%",
-                    isPrimary = false,
-                    modifier = Modifier.align(Alignment.BottomCenter).offset(y = (-60).dp, x = 40.dp)
-                )
+                // AI Tags simulation (only show if we have camera)
+                if (hasCameraPermission) {
+                    AITag(
+                        label = "Detectando comida...",
+                        confidence = "AI",
+                        modifier = Modifier.align(Alignment.TopCenter).offset(y = 60.dp)
+                    )
+                }
 
                 // Instruction
                 Surface(
@@ -71,7 +164,7 @@ fun CameraAIScreen(onBack: () -> Unit, viewModel: CameraAIViewModel = viewModel(
                     shape = CircleShape
                 ) {
                     Text(
-                        text = "Enfoca tu plato para analizarlo",
+                        text = if (hasCameraPermission) "Enfoca tu plato para analizarlo" else "Se requiere permiso de cámara",
                         modifier = Modifier.padding(horizontal = 24.dp, vertical = 8.dp),
                         color = Color.White,
                         style = MaterialTheme.typography.bodyMedium
@@ -100,18 +193,39 @@ fun CameraAIScreen(onBack: () -> Unit, viewModel: CameraAIViewModel = viewModel(
                     color = Color.Transparent,
                     shape = CircleShape,
                     onClick = {
-                        viewModel.captureFood()
-                        onBack()
+                        if (hasCameraPermission) {
+                            // Capture simulation - in a real app we would call imageCapture.takePicture
+                            viewModel.captureFood()
+                            onBack()
+                        }
                     }
                 ) {
                     Box(modifier = Modifier.padding(6.dp).fillMaxSize().background(Color.White, CircleShape))
                 }
 
                 IconButton(
-                    onClick = {},
-                    modifier = Modifier.size(48.dp).background(Color.White.copy(alpha = 0.2f), CircleShape)
+                    onClick = {
+                        flashMode = when (flashMode) {
+                            ImageCapture.FLASH_MODE_OFF -> ImageCapture.FLASH_MODE_ON
+                            ImageCapture.FLASH_MODE_ON -> ImageCapture.FLASH_MODE_AUTO
+                            else -> ImageCapture.FLASH_MODE_OFF
+                        }
+                    },
+                    modifier = Modifier.size(48.dp).background(
+                        if (flashMode != ImageCapture.FLASH_MODE_OFF) MaterialTheme.colorScheme.primary.copy(alpha = 0.4f) 
+                        else Color.White.copy(alpha = 0.2f), 
+                        CircleShape
+                    )
                 ) {
-                    Icon(Icons.Default.FlashOn, contentDescription = "Flash", tint = Color.White)
+                    Icon(
+                        when (flashMode) {
+                            ImageCapture.FLASH_MODE_ON -> Icons.Default.FlashOn
+                            ImageCapture.FLASH_MODE_AUTO -> Icons.Default.FlashAuto
+                            else -> Icons.Default.FlashOff
+                        },
+                        contentDescription = "Flash", 
+                        tint = Color.White
+                    )
                 }
             }
         }

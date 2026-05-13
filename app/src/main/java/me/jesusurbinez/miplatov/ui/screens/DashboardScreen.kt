@@ -22,129 +22,125 @@ import me.jesusurbinez.miplatov.ui.components.MacroProgress
 import me.jesusurbinez.miplatov.ui.components.MiPlatoCard
 import me.jesusurbinez.miplatov.ui.viewmodels.DashboardViewModel
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DashboardScreen(
+    innerPadding: PaddingValues = PaddingValues(0.dp),
     viewModel: DashboardViewModel = viewModel()
 ) {
-    Scaffold(
-        topBar = { /* No Top Bar for Minimalist UI */ }
-    ) { padding ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(padding)
-                .padding(20.dp)
-                .verticalScroll(rememberScrollState()),
-            verticalArrangement = Arrangement.spacedBy(24.dp)
-        ) {
-            // Daily Summary Card
-            MiPlatoCard {
-                Column(
-                    modifier = Modifier.padding(24.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    Text(
-                        text = "Resumen Diario",
-                        style = MaterialTheme.typography.titleLarge,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier.align(Alignment.Start)
-                    )
-                    
-                    Spacer(Modifier.height(24.dp))
-                    
-                    // Circular Progress
-                    Box(contentAlignment = Alignment.Center, modifier = Modifier.size(240.dp)) {
-                        val progress = if (viewModel.targetCalories > 0) 
-                            (viewModel.consumedCalories.toFloat() / viewModel.targetCalories).coerceIn(0f, 1f)
-                            else 0f
-                            
-                        CircularProgressIndicator(
-                            progress = { progress },
-                            modifier = Modifier.fillMaxSize(),
-                            color = MaterialTheme.colorScheme.primary,
-                            strokeWidth = 12.dp,
-                            trackColor = MaterialTheme.colorScheme.secondaryContainer,
-                            strokeCap = StrokeCap.Round
-                        )
-                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                            Text(
-                                text = viewModel.consumedCalories.toString(),
-                                style = MaterialTheme.typography.displayLarge,
-                                color = MaterialTheme.colorScheme.primary,
-                                fontWeight = FontWeight.Bold
-                            )
-                            Text(
-                                text = "KCAL CONSUMIDAS",
-                                style = MaterialTheme.typography.labelLarge,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                letterSpacing = 1.sp
-                            )
-                            Spacer(Modifier.height(4.dp))
-                            Text(
-                                text = "de ${viewModel.targetCalories}",
-                                style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.outline
-                            )
-                        }
-                    }
-
-                    Spacer(Modifier.height(24.dp))
-                    
-                    HorizontalDivider(color = MaterialTheme.colorScheme.surfaceVariant)
-                    
-                    Row(
-                        modifier = Modifier.fillMaxWidth().padding(top = 16.dp),
-                        horizontalArrangement = Arrangement.SpaceEvenly
-                    ) {
-                        SummaryStat(label = "Restantes", value = viewModel.remainingCalories.toString())
-                        VerticalDivider(modifier = Modifier.height(40.dp).width(1.dp), color = MaterialTheme.colorScheme.surfaceVariant)
-                        SummaryStat(label = "Objetivo", value = viewModel.targetCalories.toString())
-                    }
-                }
-            }
-
-            // Macros Card
-            MiPlatoCard {
-                Column(modifier = Modifier.padding(24.dp), verticalArrangement = Arrangement.spacedBy(24.dp)) {
-                    Text(
-                        text = "Macronutrientes",
-                        style = MaterialTheme.typography.titleLarge,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-
-                    MacroProgress(label = "Proteínas", currentValue = viewModel.proteinCurrent, targetValue = viewModel.proteinTarget)
-                    MacroProgress(label = "Carbohidratos", currentValue = viewModel.carbsCurrent, targetValue = viewModel.carbsTarget)
-                    MacroProgress(label = "Grasas", currentValue = viewModel.fatCurrent, targetValue = viewModel.fatTarget)
-                }
-            }
-
-            // Today's Meals Section
-            Column(modifier = Modifier.fillMaxWidth()) {
-                Text(text = "Comidas de hoy", style = MaterialTheme.typography.headlineMedium)
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(innerPadding)
+            .padding(20.dp)
+            .verticalScroll(rememberScrollState()),
+        verticalArrangement = Arrangement.spacedBy(24.dp)
+    ) {
+        // Daily Summary Card
+        MiPlatoCard {
+            Column(
+                modifier = Modifier.padding(24.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text(
+                    text = "Resumen Diario",
+                    style = MaterialTheme.typography.titleLarge,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.align(Alignment.Start)
+                )
                 
-                Spacer(Modifier.height(16.dp))
-
-                if (viewModel.recentFoods.isEmpty()) {
-                    Surface(
-                        modifier = Modifier.fillMaxWidth(),
-                        shape = RoundedCornerShape(24.dp),
-                        color = Color.Transparent,
-                        border = androidx.compose.foundation.BorderStroke(2.dp, MaterialTheme.colorScheme.outlineVariant)
-                    ) {
-                        Column(
-                            modifier = Modifier.padding(48.dp),
-                            horizontalAlignment = Alignment.CenterHorizontally,
-                            verticalArrangement = Arrangement.Center
-                        ) {
-                            Text(text = "No hay datos aún", style = MaterialTheme.typography.titleLarge)
-                        }
+                Spacer(Modifier.height(24.dp))
+                
+                // Circular Progress
+                Box(contentAlignment = Alignment.Center, modifier = Modifier.size(240.dp)) {
+                    val progress = if (viewModel.targetCalories > 0) 
+                        (viewModel.consumedCalories.toFloat() / viewModel.targetCalories).coerceIn(0f, 1f)
+                        else 0f
+                        
+                    CircularProgressIndicator(
+                        progress = { progress },
+                        modifier = Modifier.fillMaxSize(),
+                        color = MaterialTheme.colorScheme.primary,
+                        strokeWidth = 12.dp,
+                        trackColor = MaterialTheme.colorScheme.secondaryContainer,
+                        strokeCap = StrokeCap.Round
+                    )
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        Text(
+                            text = viewModel.consumedCalories.toString(),
+                            style = MaterialTheme.typography.displayLarge,
+                            color = MaterialTheme.colorScheme.primary,
+                            fontWeight = FontWeight.Bold
+                        )
+                        Text(
+                            text = "KCAL CONSUMIDAS",
+                            style = MaterialTheme.typography.labelLarge,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            letterSpacing = 1.sp
+                        )
+                        Spacer(Modifier.height(4.dp))
+                        Text(
+                            text = "de ${viewModel.targetCalories}",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.outline
+                        )
                     }
-                } else {
-                    Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                        viewModel.recentFoods.forEach { food ->
-                            FoodItemCard(food)
-                        }
+                }
+
+                Spacer(Modifier.height(24.dp))
+                
+                HorizontalDivider(color = MaterialTheme.colorScheme.surfaceVariant)
+                
+                Row(
+                    modifier = Modifier.fillMaxWidth().padding(top = 16.dp),
+                    horizontalArrangement = Arrangement.SpaceEvenly
+                ) {
+                    SummaryStat(label = "Restantes", value = viewModel.remainingCalories.toString())
+                    VerticalDivider(modifier = Modifier.height(40.dp).width(1.dp), color = MaterialTheme.colorScheme.surfaceVariant)
+                    SummaryStat(label = "Objetivo", value = viewModel.targetCalories.toString())
+                }
+            }
+        }
+
+        // Macros Card
+        MiPlatoCard {
+            Column(modifier = Modifier.padding(24.dp), verticalArrangement = Arrangement.spacedBy(24.dp)) {
+                Text(
+                    text = "Macronutrientes",
+                    style = MaterialTheme.typography.titleLarge,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+
+                MacroProgress(label = "Proteínas", currentValue = viewModel.proteinCurrent, targetValue = viewModel.proteinTarget)
+                MacroProgress(label = "Carbohidratos", currentValue = viewModel.carbsCurrent, targetValue = viewModel.carbsTarget)
+                MacroProgress(label = "Grasas", currentValue = viewModel.fatCurrent, targetValue = viewModel.fatTarget)
+            }
+        }
+
+        // Today's Meals Section
+        Column(modifier = Modifier.fillMaxWidth()) {
+            Text(text = "Comidas de hoy", style = MaterialTheme.typography.headlineMedium)
+            
+            Spacer(Modifier.height(16.dp))
+
+            if (viewModel.recentFoods.isEmpty()) {
+                Surface(
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(24.dp),
+                    color = Color.Transparent,
+                    border = androidx.compose.foundation.BorderStroke(2.dp, MaterialTheme.colorScheme.outlineVariant)
+                ) {
+                    Column(
+                        modifier = Modifier.padding(48.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Center
+                    ) {
+                        Text(text = "No hay datos aún", style = MaterialTheme.typography.titleLarge)
+                    }
+                }
+            } else {
+                Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                    viewModel.recentFoods.forEach { food ->
+                        FoodItemCard(food)
                     }
                 }
             }

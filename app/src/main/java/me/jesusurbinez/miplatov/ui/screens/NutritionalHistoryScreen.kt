@@ -30,64 +30,64 @@ import androidx.compose.runtime.collectAsState
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun NutritionalHistoryScreen(
+    innerPadding: PaddingValues = PaddingValues(0.dp),
     viewModel: NutritionalHistoryViewModel = viewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
-    Scaffold(
-        topBar = { /* Minimalist: No Top Bar */ }
-    ) { padding ->
-        Column(
-            modifier = Modifier.fillMaxSize().padding(padding).padding(20.dp)
-        ) {
-            Row(modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
-                Text(text = "Historial de Consumo", style = MaterialTheme.typography.headlineMedium)
-                Icon(Icons.Default.CalendarMonth, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
-            }
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(innerPadding)
+            .padding(20.dp)
+    ) {
+        Row(modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
+            Text(text = "Historial de Consumo", style = MaterialTheme.typography.headlineMedium)
+            Icon(Icons.Default.CalendarMonth, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
+        }
 
-            // Calendar Row
-            LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.padding(bottom = 24.dp)) {
-                items(uiState.days) { day ->
-                    DayCard(day = day, isSelected = day.num == uiState.selectedDayNum)
-                }
+        // Calendar Row
+        LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.padding(bottom = 24.dp)) {
+            items(uiState.days) { day ->
+                DayCard(day = day, isSelected = day.num == uiState.selectedDayNum)
             }
+        }
 
-            // Daily Summary Bento
-            Row(modifier = Modifier.fillMaxWidth().height(100.dp), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                Surface(
-                    modifier = Modifier.weight(2f),
-                    shape = RoundedCornerShape(16.dp),
-                    color = MaterialTheme.colorScheme.surface,
-                    shadowElevation = 1.dp
-                ) {
-                    Row(modifier = Modifier.padding(12.dp), verticalAlignment = Alignment.CenterVertically) {
-                        val progress = if (uiState.targetCalories > 0) uiState.totalCalories.toFloat() / uiState.targetCalories else 0f
-                        Box(contentAlignment = Alignment.Center, modifier = Modifier.size(64.dp)) {
-                            CircularProgressIndicator(progress = { progress }, color = MaterialTheme.colorScheme.primary, trackColor = MaterialTheme.colorScheme.secondaryContainer, strokeWidth = 6.dp)
-                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                                Text("${uiState.totalCalories}", style = MaterialTheme.typography.labelLarge, fontWeight = FontWeight.Bold)
-                                Text("kcal", fontSize = 10.sp, color = MaterialTheme.colorScheme.outline)
-                            }
-                        }
-                        Spacer(Modifier.width(12.dp))
-                        Column {
-                            Text("Calorías Diarias", style = MaterialTheme.typography.titleLarge)
-                            Text("${(progress * 100).toInt()}% de tu meta", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.outline)
+        // Daily Summary Bento
+        Row(modifier = Modifier.fillMaxWidth().height(100.dp), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+            Surface(
+                modifier = Modifier.weight(2f),
+                shape = RoundedCornerShape(16.dp),
+                color = MaterialTheme.colorScheme.surface,
+                shadowElevation = 1.dp
+            ) {
+                Row(modifier = Modifier.padding(12.dp), verticalAlignment = Alignment.CenterVertically) {
+                    val progress = if (uiState.targetCalories > 0) uiState.totalCalories.toFloat() / uiState.targetCalories else 0f
+                    Box(contentAlignment = Alignment.Center, modifier = Modifier.size(64.dp)) {
+                        CircularProgressIndicator(progress = { progress }, color = MaterialTheme.colorScheme.primary, trackColor = MaterialTheme.colorScheme.secondaryContainer, strokeWidth = 6.dp)
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                            Text("${uiState.totalCalories}", style = MaterialTheme.typography.labelLarge, fontWeight = FontWeight.Bold)
+                            Text("kcal", fontSize = 10.sp, color = MaterialTheme.colorScheme.outline)
                         }
                     }
+                    Spacer(Modifier.width(12.dp))
+                    Column {
+                        Text("Calorías Diarias", style = MaterialTheme.typography.titleLarge)
+                        Text("${(progress * 100).toInt()}% de tu meta", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.outline)
+                    }
                 }
-                
-                val proteinProgress = if (uiState.targetProtein > 0) uiState.proteinGrams.toFloat() / uiState.targetProtein else 0f
-                MacroMiniCard(label = "Proteína", value = "${uiState.proteinGrams}g", percentage = proteinProgress, icon = Icons.Default.FitnessCenter, modifier = Modifier.weight(1f))
             }
+            
+            val proteinProgress = if (uiState.targetProtein > 0) uiState.proteinGrams.toFloat() / uiState.targetProtein else 0f
+            MacroMiniCard(label = "Proteína", value = "${uiState.proteinGrams}g", percentage = proteinProgress, icon = Icons.Default.FitnessCenter, modifier = Modifier.weight(1f))
+        }
 
-            Spacer(Modifier.height(24.dp))
+        Spacer(Modifier.height(24.dp))
 
-            // Food List
-            LazyColumn(verticalArrangement = Arrangement.spacedBy(20.dp)) {
-                item { MealSectionHeader(title = "Consumo de hoy", time = "Detalles", icon = Icons.Default.Restaurant) }
-                items(uiState.breakfastItems) { item -> FoodListItem(item) }
-            }
+        // Food List
+        LazyColumn(verticalArrangement = Arrangement.spacedBy(20.dp)) {
+            item { MealSectionHeader(title = "Consumo de hoy", time = "Detalles", icon = Icons.Default.Restaurant) }
+            items(uiState.breakfastItems) { item -> FoodListItem(item) }
         }
     }
 }
