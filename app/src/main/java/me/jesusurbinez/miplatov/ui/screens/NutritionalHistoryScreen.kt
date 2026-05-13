@@ -77,7 +77,7 @@ fun NutritionalHistoryScreen(
                     }
                 }
             }
-            
+
             val proteinProgress = if (uiState.targetProtein > 0) uiState.proteinGrams.toFloat() / uiState.targetProtein else 0f
             MacroMiniCard(label = "Proteína", value = "${uiState.proteinGrams}g", percentage = proteinProgress, icon = Icons.Default.FitnessCenter, modifier = Modifier.weight(1f))
         }
