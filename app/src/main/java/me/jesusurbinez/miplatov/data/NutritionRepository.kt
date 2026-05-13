@@ -16,6 +16,12 @@ data class FoodRecord(
     val time: String
 )
 
+enum class UserGoal(val label: String) {
+    LOSE_WEIGHT("Bajar de peso"),
+    MAINTENANCE("Mantenimiento"),
+    GAIN_MUSCLE("Aumentar masa muscular")
+}
+
 data class DailyNutrition(
     val calories: Int = 0,
     val protein: Int = 0,
@@ -56,5 +62,29 @@ object NutritionRepository {
                 targetFat = fat
             )
         }
+    }
+
+    fun setTargetsByGoal(goal: UserGoal) {
+        val targets = when (goal) {
+            UserGoal.LOSE_WEIGHT -> DailyNutrition(
+                targetCalories = 1800,
+                targetProtein = 160,
+                targetCarbs = 180,
+                targetFat = 50
+            )
+            UserGoal.MAINTENANCE -> DailyNutrition(
+                targetCalories = 2200,
+                targetProtein = 150,
+                targetCarbs = 250,
+                targetFat = 70
+            )
+            UserGoal.GAIN_MUSCLE -> DailyNutrition(
+                targetCalories = 2700,
+                targetProtein = 180,
+                targetCarbs = 350,
+                targetFat = 80
+            )
+        }
+        updateTargets(targets.targetCalories, targets.targetProtein, targets.targetCarbs, targets.targetFat)
     }
 }

@@ -1,10 +1,8 @@
 package me.jesusurbinez.miplatov.ui.screens
 
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
+import android.Manifest
+import android.util.Log
 import androidx.camera.core.CameraSelector
-import androidx.camera.core.ImageCapture
-import androidx.camera.core.ImageCaptureException
 import androidx.camera.core.Preview
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
@@ -14,95 +12,38 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.rounded.ArrowBack
 import androidx.compose.material.icons.filled.*
+import androidx.compose.material.icons.rounded.FlashOn
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalLifecycleOwner
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
-import android.content.pm.PackageManager
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.google.accompanist.permissions.ExperimentalPermissionsApi
+import com.google.accompanist.permissions.isGranted
+import com.google.accompanist.permissions.rememberPermissionState
 import me.jesusurbinez.miplatov.ui.viewmodels.CameraAIViewModel
-import java.util.concurrent.ExecutorService
-import java.util.concurrent.Executors
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalPermissionsApi::class)
 @Composable
 fun CameraAIScreen(
     onBack: () -> Unit,
     innerPadding: PaddingValues = PaddingValues(0.dp),
     viewModel: CameraAIViewModel = viewModel()
 ) {
-    val context = LocalContext.current
-    val lifecycleOwner = LocalLifecycleOwner.current
-    
-    var hasCameraPermission by remember {
-        mutableStateOf(
-            ContextCompat.checkSelfPermission(
-                context,
-                android.Manifest.permission.CAMERA
-            ) == PackageManager.PERMISSION_GRANTED
-        )
-    }
-
-    // Correct permission check
-    LaunchedEffect(Unit) {
-        hasCameraPermission = ContextCompat.checkSelfPermission(
-            context,
-            android.Manifest.permission.CAMERA
-        ) == android.content.pm.PackageManager.PERMISSION_GRANTED
-    }
-
-    val launcher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.RequestPermission(),
-        onResult = { granted ->
-            hasCameraPermission = granted
-        }
-    )
+    val cameraPermissionState = rememberPermissionState(Manifest.permission.CAMERA)
 
     LaunchedEffect(Unit) {
-        if (!hasCameraPermission) {
-            launcher.launch(android.Manifest.permission.CAMERA)
-        }
-    }
-
-    val cameraProviderFuture = remember { ProcessCameraProvider.getInstance(context) }
-    val previewView = remember { PreviewView(context) }
-    val imageCapture = remember { ImageCapture.Builder().build() }
-    val cameraExecutor: ExecutorService = remember { Executors.newSingleThreadExecutor() }
-    
-    var flashMode by remember { mutableIntStateOf(ImageCapture.FLASH_MODE_OFF) }
-
-    LaunchedEffect(hasCameraPermission, flashMode) {
-        if (hasCameraPermission) {
-            val cameraProvider = cameraProviderFuture.get()
-            val preview = Preview.Builder().build().also {
-                it.setSurfaceProvider(previewView.surfaceProvider)
-            }
-
-            imageCapture.flashMode = flashMode
-
-            val cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
-
-            try {
-                cameraProvider.unbindAll()
-                cameraProvider.bindToLifecycle(
-                    lifecycleOwner,
-                    cameraSelector,
-                    preview,
-                    imageCapture
-                )
-            } catch (e: Exception) {
-                e.printStackTrace()
-            }
-        }
+        cameraPermissionState.launchPermissionRequest()
     }
 
     Box(modifier = Modifier
@@ -110,17 +51,11 @@ fun CameraAIScreen(
         .background(Color.Black)
         .padding(innerPadding)
     ) {
-        if (hasCameraPermission) {
-            AndroidView(
-                factory = { previewView },
-                modifier = Modifier.fillMaxSize()
-            )
+        if (cameraPermissionState.status.isGranted) {
+            CameraPreview()
         } else {
-            Box(
-                modifier = Modifier.fillMaxSize(),
-                contentAlignment = Alignment.Center
-            ) {
-                Text("Permiso de cámara denegado", color = Color.White)
+            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                Text("Permiso de cámara no concedido", color = Color.White)
             }
         }
 
@@ -148,14 +83,19 @@ fun CameraAIScreen(
                     )
                 }
 
-                // AI Tags simulation (only show if we have camera)
-                if (hasCameraPermission) {
-                    AITag(
-                        label = "Detectando comida...",
-                        confidence = "AI",
-                        modifier = Modifier.align(Alignment.TopCenter).offset(y = 60.dp)
-                    )
-                }
+                // AI Tags simulation
+                AITag(
+                    label = "Salmón Parrilla",
+                    confidence = "94%",
+                    modifier = Modifier.align(Alignment.TopCenter).offset(y = 60.dp, x = (-40).dp)
+                )
+                
+                AITag(
+                    label = "Tomate Cherry",
+                    confidence = "88%",
+                    isPrimary = false,
+                    modifier = Modifier.align(Alignment.BottomCenter).offset(y = (-60).dp, x = 40.dp)
+                )
 
                 // Instruction
                 Surface(
@@ -164,7 +104,7 @@ fun CameraAIScreen(
                     shape = CircleShape
                 ) {
                     Text(
-                        text = if (hasCameraPermission) "Enfoca tu plato para analizarlo" else "Se requiere permiso de cámara",
+                        text = "Enfoca tu plato para analizarlo",
                         modifier = Modifier.padding(horizontal = 24.dp, vertical = 8.dp),
                         color = Color.White,
                         style = MaterialTheme.typography.bodyMedium
@@ -184,7 +124,7 @@ fun CameraAIScreen(
                     onClick = { onBack() },
                     modifier = Modifier.size(48.dp).background(Color.White.copy(alpha = 0.2f), CircleShape)
                 ) {
-                    Icon(Icons.Default.ArrowBack, contentDescription = "Back", tint = Color.White)
+                    Icon(Icons.AutoMirrored.Rounded.ArrowBack, contentDescription = "Back", tint = Color.White)
                 }
 
                 // Main Capture Button
@@ -193,43 +133,57 @@ fun CameraAIScreen(
                     color = Color.Transparent,
                     shape = CircleShape,
                     onClick = {
-                        if (hasCameraPermission) {
-                            // Capture simulation - in a real app we would call imageCapture.takePicture
-                            viewModel.captureFood()
-                            onBack()
-                        }
+                        viewModel.captureFood()
+                        onBack()
                     }
                 ) {
                     Box(modifier = Modifier.padding(6.dp).fillMaxSize().background(Color.White, CircleShape))
                 }
 
                 IconButton(
-                    onClick = {
-                        flashMode = when (flashMode) {
-                            ImageCapture.FLASH_MODE_OFF -> ImageCapture.FLASH_MODE_ON
-                            ImageCapture.FLASH_MODE_ON -> ImageCapture.FLASH_MODE_AUTO
-                            else -> ImageCapture.FLASH_MODE_OFF
-                        }
-                    },
-                    modifier = Modifier.size(48.dp).background(
-                        if (flashMode != ImageCapture.FLASH_MODE_OFF) MaterialTheme.colorScheme.primary.copy(alpha = 0.4f) 
-                        else Color.White.copy(alpha = 0.2f), 
-                        CircleShape
-                    )
+                    onClick = {},
+                    modifier = Modifier.size(48.dp).background(Color.White.copy(alpha = 0.2f), CircleShape)
                 ) {
-                    Icon(
-                        when (flashMode) {
-                            ImageCapture.FLASH_MODE_ON -> Icons.Default.FlashOn
-                            ImageCapture.FLASH_MODE_AUTO -> Icons.Default.FlashAuto
-                            else -> Icons.Default.FlashOff
-                        },
-                        contentDescription = "Flash", 
-                        tint = Color.White
-                    )
+                    Icon(Icons.Rounded.FlashOn, contentDescription = "Flash", tint = Color.White)
                 }
             }
         }
     }
+}
+
+@Composable
+fun CameraPreview() {
+    val lifecycleOwner = LocalLifecycleOwner.current
+    val context = LocalContext.current
+    val cameraProviderFuture = remember { ProcessCameraProvider.getInstance(context) }
+
+    AndroidView(
+        factory = { ctx ->
+            val previewView = PreviewView(ctx)
+            val executor = ContextCompat.getMainExecutor(ctx)
+            cameraProviderFuture.addListener({
+                val cameraProvider = cameraProviderFuture.get()
+                val preview = Preview.Builder().build().also {
+                    it.setSurfaceProvider(previewView.surfaceProvider)
+                }
+
+                val cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
+
+                try {
+                    cameraProvider.unbindAll()
+                    cameraProvider.bindToLifecycle(
+                        lifecycleOwner,
+                        cameraSelector,
+                        preview
+                    )
+                } catch (ex: Exception) {
+                    Log.e("CameraPreview", "Use case binding failed", ex)
+                }
+            }, executor)
+            previewView
+        },
+        modifier = Modifier.fillMaxSize()
+    )
 }
 
 @Composable

@@ -1,10 +1,8 @@
 package me.jesusurbinez.miplatov.ui.navigation
 
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.*
 import androidx.compose.material.icons.rounded.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -23,13 +21,13 @@ enum class Screen(val route: String, val icon: ImageVector? = null, val label: S
     Splash("splash"),
     Login("login"),
     Register("register"),
-    Dashboard("dashboard", Icons.Default.Home, "Home"),
-    FoodSearch("search", Icons.Default.Search, "Search"),
-    CameraAI("camera", Icons.Default.PhotoCamera, "Camera"),
+    Dashboard("dashboard", Icons.Rounded.Home, "Inicio"),
+    FoodSearch("search", Icons.Rounded.Search, "Buscar"),
+    CameraAI("camera", Icons.Rounded.PhotoCamera, "Cámara"),
     FoodDetail("detail"),
-    History("history", Icons.Default.History, "History"),
+    History("history", Icons.Rounded.History, "Historial"),
     Plans("plans"),
-    Profile("profile", Icons.Default.Person, "Profile")
+    Profile("profile", Icons.Rounded.Person, "Perfil")
 }
 
 @Composable

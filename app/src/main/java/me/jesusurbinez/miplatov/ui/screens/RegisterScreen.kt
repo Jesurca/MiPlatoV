@@ -21,6 +21,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import me.jesusurbinez.miplatov.data.UserGoal
 import me.jesusurbinez.miplatov.ui.components.MiPlatoButton
 import me.jesusurbinez.miplatov.ui.viewmodels.RegisterViewModel
 
@@ -128,6 +129,37 @@ fun RegisterScreen(
                     icon = Icons.Default.Lock,
                     isPassword = true
                 )
+
+                // Goal Selection
+                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Text(
+                        text = "¿Cuál es tu objetivo?",
+                        style = MaterialTheme.typography.labelLarge,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        UserGoal.values().forEach { goal ->
+                            FilterChip(
+                                selected = viewModel.selectedGoal == goal,
+                                onClick = { viewModel.onGoalChange(goal) },
+                                label = { 
+                                    Text(
+                                        text = goal.label,
+                                        style = MaterialTheme.typography.labelMedium
+                                    ) 
+                                },
+                                modifier = Modifier.weight(1f),
+                                colors = FilterChipDefaults.filterChipColors(
+                                    selectedContainerColor = MaterialTheme.colorScheme.primaryContainer,
+                                    selectedLabelColor = MaterialTheme.colorScheme.onPrimaryContainer
+                                )
+                            )
+                        }
+                    }
+                }
 
                 Spacer(Modifier.height(8.dp))
 

@@ -9,8 +9,12 @@ import com.google.firebase.auth.UserProfileChangeRequest
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 
+import me.jesusurbinez.miplatov.data.NutritionRepository
+import me.jesusurbinez.miplatov.data.UserGoal
+
 class RegisterViewModel : ViewModel() {
     private val auth: FirebaseAuth = Firebase.auth
+    private val repository = NutritionRepository
 
     var fullName by mutableStateOf("")
         private set
@@ -19,6 +23,9 @@ class RegisterViewModel : ViewModel() {
     var password by mutableStateOf("")
         private set
     var confirmPassword by mutableStateOf("")
+        private set
+    
+    var selectedGoal by mutableStateOf(UserGoal.MAINTENANCE)
         private set
     
     var errorMessage by mutableStateOf<String?>(null)
@@ -31,6 +38,7 @@ class RegisterViewModel : ViewModel() {
     fun onEmailChange(newValue: String) { email = newValue; errorMessage = null }
     fun onPasswordChange(newValue: String) { password = newValue; errorMessage = null }
     fun onConfirmPasswordChange(newValue: String) { confirmPassword = newValue; errorMessage = null }
+    fun onGoalChange(newGoal: UserGoal) { selectedGoal = newGoal }
 
     fun register(onSuccess: () -> Unit) {
         if (fullName.isEmpty() || email.isEmpty() || password.isEmpty() || confirmPassword.isEmpty()) {
@@ -46,6 +54,9 @@ class RegisterViewModel : ViewModel() {
         auth.createUserWithEmailAndPassword(email, password)
             .addOnCompleteListener { task ->
                 if (task.isSuccessful) {
+                    // Actualizamos los objetivos según la meta seleccionada
+                    repository.setTargetsByGoal(selectedGoal)
+
                     val user = auth.currentUser
                     val profileUpdates = UserProfileChangeRequest.Builder()
                         .setDisplayName(fullName)
