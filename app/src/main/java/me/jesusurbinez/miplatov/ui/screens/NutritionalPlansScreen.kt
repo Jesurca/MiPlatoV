@@ -22,6 +22,8 @@ import me.jesusurbinez.miplatov.ui.components.MiPlatoCard
 
 import androidx.lifecycle.viewmodel.compose.viewModel
 import me.jesusurbinez.miplatov.ui.viewmodels.NutritionalPlansViewModel
+import me.jesusurbinez.miplatov.ui.components.MiPlatoButton
+import androidx.compose.ui.graphics.Brush
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -38,7 +40,7 @@ fun NutritionalPlansScreen(
             verticalArrangement = Arrangement.spacedBy(24.dp)
         ) {
             Column {
-                Text(text = "Tu plan personalizado", style = MaterialTheme.typography.headlineLarge)
+                Text(text = "Tu plan personalizado", style = MaterialTheme.typography.headlineLarge, fontWeight = FontWeight.ExtraBold, color = Color.White)
                 Text(text = "Ajusta tus metas para obtener recomendaciones nutricionales precisas.", style = MaterialTheme.typography.bodyLarge, color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
 
@@ -76,7 +78,7 @@ fun NutritionalPlansScreen(
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Icon(Icons.Default.DirectionsRun, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
                         Spacer(Modifier.width(12.dp))
-                        Text(text = "Nivel de actividad física", style = MaterialTheme.typography.headlineMedium)
+                        Text(text = "Nivel de actividad física", style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold, color = Color.White)
                     }
                     Spacer(Modifier.height(16.dp))
                     
@@ -102,58 +104,57 @@ fun NutritionalPlansScreen(
             }
 
             // Summary Footer
-            Surface(
-                color = MaterialTheme.colorScheme.primaryContainer,
-                shape = RoundedCornerShape(16.dp),
-                modifier = Modifier.fillMaxWidth()
+            MiPlatoCard(
+                borderGradient = listOf(MaterialTheme.colorScheme.primary.copy(alpha = 0.8f), Color.Transparent)
             ) {
                 Row(
                     modifier = Modifier.padding(20.dp),
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Column {
-                        Text("Resumen de tu nuevo plan", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onPrimaryContainer)
-                        Text("Objetivo: ${uiState.estimatedKcal}", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.8f))
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text("Resumen de tu nuevo plan", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold, color = Color.White)
+                        Text("Objetivo: ${uiState.estimatedKcal}", style = MaterialTheme.typography.bodySmall, color = me.jesusurbinez.miplatov.ui.theme.NeonYellow)
                     }
-                    Button(
+                    MiPlatoButton(
+                        text = "Actualizar",
                         onClick = { viewModel.updateGlobalPlan() },
-                        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
-                        shape = RoundedCornerShape(12.dp)
-                    ) {
-                        Icon(Icons.Default.Sync, contentDescription = null)
-                        Spacer(Modifier.width(8.dp))
-                        Text("Actualizar")
-                    }
+                        modifier = Modifier.width(150.dp).height(48.dp),
+                        icon = Icons.Default.Sync
+                    )
                 }
             }
+            
+            Spacer(Modifier.height(100.dp)) // Padding for bottom bar
         }
     }
 }
 
 @Composable
 fun GoalCard(title: String, kcal: String, icon: androidx.compose.ui.graphics.vector.ImageVector, isSelected: Boolean, onClick: () -> Unit, modifier: Modifier = Modifier) {
-    Surface(
+    MiPlatoCard(
         modifier = modifier.clickable { onClick() },
-        shape = RoundedCornerShape(16.dp),
-        color = if (isSelected) MaterialTheme.colorScheme.surfaceContainer else MaterialTheme.colorScheme.surfaceContainerLowest,
-        border = if (isSelected) androidx.compose.foundation.BorderStroke(2.dp, MaterialTheme.colorScheme.primary) else null,
-        shadowElevation = 2.dp
+        borderGradient = if (isSelected) listOf(MaterialTheme.colorScheme.primary, Color.Transparent) else listOf(MaterialTheme.colorScheme.primary.copy(alpha = 0.2f), Color.Transparent)
     ) {
         Column(
             modifier = Modifier.padding(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Surface(modifier = Modifier.size(56.dp), shape = CircleShape, color = MaterialTheme.colorScheme.secondaryContainer) {
-                Icon(icon, contentDescription = null, modifier = Modifier.padding(12.dp), tint = MaterialTheme.colorScheme.onSecondaryContainer)
+            Surface(
+                modifier = Modifier.size(56.dp), 
+                shape = CircleShape, 
+                color = if (isSelected) MaterialTheme.colorScheme.primary.copy(alpha = 0.1f) else MaterialTheme.colorScheme.surfaceVariant,
+                border = androidx.compose.foundation.BorderStroke(1.dp, if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.3f))
+            ) {
+                Icon(icon, contentDescription = null, modifier = Modifier.padding(12.dp), tint = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant)
             }
             Spacer(Modifier.height(12.dp))
-            Text(text = title, style = MaterialTheme.typography.titleLarge)
+            Text(text = title, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold, color = if (isSelected) MaterialTheme.colorScheme.primary else Color.White)
             Spacer(Modifier.height(8.dp))
-            HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+            HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f))
             Spacer(Modifier.height(8.dp))
-            Text(text = "ESTIMADO", style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.outline)
-            Text(text = kcal, style = MaterialTheme.typography.headlineMedium, color = MaterialTheme.colorScheme.primary)
+            Text(text = "ESTIMADO", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            Text(text = kcal, style = MaterialTheme.typography.headlineSmall, color = if (isSelected) MaterialTheme.colorScheme.primary else Color.White, fontWeight = FontWeight.ExtraBold)
         }
     }
 }
@@ -167,18 +168,25 @@ fun ActivityOption(label: String, description: String, isSelected: Boolean, onSe
             .clickable { onSelect() }
             .border(
                 1.dp,
-                if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outlineVariant,
-                RoundedCornerShape(8.dp)
+                if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.3f),
+                RoundedCornerShape(12.dp)
             )
-            .background(if (isSelected) MaterialTheme.colorScheme.surfaceContainerLow else Color.Transparent)
+            .background(
+                if (isSelected) MaterialTheme.colorScheme.primary.copy(alpha = 0.05f) else Color.Transparent,
+                RoundedCornerShape(12.dp)
+            )
             .padding(16.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        RadioButton(selected = isSelected, onClick = onSelect)
+        RadioButton(
+            selected = isSelected, 
+            onClick = onSelect,
+            colors = RadioButtonDefaults.colors(selectedColor = MaterialTheme.colorScheme.primary, unselectedColor = MaterialTheme.colorScheme.onSurfaceVariant)
+        )
         Spacer(Modifier.width(12.dp))
         Column {
-            Text(text = label, style = MaterialTheme.typography.titleLarge, fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal)
-            Text(text = description, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            Text(text = label, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold, color = if (isSelected) MaterialTheme.colorScheme.primary else Color.White)
+            Text(text = description, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
         }
     }
 }

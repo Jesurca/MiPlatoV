@@ -36,7 +36,7 @@ fun SplashScreen(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(MaterialTheme.colorScheme.surfaceContainerLowest),
+            .background(MaterialTheme.colorScheme.background),
         contentAlignment = Alignment.Center
     ) {
         Column(
@@ -54,18 +54,26 @@ fun SplashScreen(
             ) {
                 Text(
                     text = "MiPlato",
-                    style = MaterialTheme.typography.displayLarge,
+                    style = MaterialTheme.typography.displayLarge.copy(
+                        shadow = androidx.compose.ui.graphics.Shadow(
+                            color = MaterialTheme.colorScheme.primary,
+                            blurRadius = 30f
+                        )
+                    ),
                     color = MaterialTheme.colorScheme.primary,
-                    fontWeight = FontWeight.ExtraBold
+                    fontWeight = FontWeight.ExtraBold,
+                    letterSpacing = (-2).sp
                 )
             }
             
-            Spacer(Modifier.height(24.dp))
+            Spacer(Modifier.height(16.dp))
             
             Text(
-                text = "Tu bienestar empieza en el plato",
-                style = MaterialTheme.typography.bodyLarge,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
+                text = "TU BIENESTAR EMPIEZA AQUÍ",
+                style = MaterialTheme.typography.labelLarge,
+                color = MaterialTheme.colorScheme.primary,
+                letterSpacing = 3.sp,
+                fontWeight = FontWeight.Bold
             )
         }
 
@@ -77,15 +85,16 @@ fun SplashScreen(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             CircularProgressIndicator(
-                modifier = Modifier.size(32.dp),
-                color = MaterialTheme.colorScheme.outline,
-                strokeWidth = 3.dp
+                modifier = Modifier.size(24.dp),
+                color = MaterialTheme.colorScheme.primary,
+                trackColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.15f),
+                strokeWidth = 2.dp
             )
             Spacer(Modifier.height(16.dp))
             Text(
-                text = "VERIFICANDO SESIÓN",
+                text = "INICIANDO",
                 style = MaterialTheme.typography.labelLarge,
-                color = MaterialTheme.colorScheme.outline,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
                 letterSpacing = 2.sp
             )
         }

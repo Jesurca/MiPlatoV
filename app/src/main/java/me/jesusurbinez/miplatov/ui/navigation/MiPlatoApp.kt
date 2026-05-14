@@ -1,12 +1,17 @@
 package me.jesusurbinez.miplatov.ui.navigation
 
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
@@ -45,20 +50,16 @@ fun MiPlatoApp() {
             Screen.Profile.route
         )
 
-        Scaffold(
-            modifier = Modifier.fillMaxSize(),
-            bottomBar = {
-                if (showBottomBar) {
-                    MiPlatoBottomBar(navController, currentRoute)
-                }
-            }
-        ) { innerPadding ->
+        // Using Box to overlay the bottom bar and avoid Scaffold's default bottom bar container/shadows
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(MaterialTheme.colorScheme.background)
+        ) {
             NavHost(
                 navController = navController,
                 startDestination = Screen.Splash.route,
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(innerPadding)
+                modifier = Modifier.fillMaxSize()
             ) {
                 composable(Screen.Splash.route) {
                     SplashScreen(
@@ -118,37 +119,75 @@ fun MiPlatoApp() {
                     )
                 }
             }
+
+            if (showBottomBar) {
+                Box(
+                    modifier = Modifier
+                        .align(Alignment.BottomCenter)
+                        .fillMaxWidth()
+                ) {
+                    MiPlatoBottomBar(navController, currentRoute)
+                }
+            }
         }
     }
 }
 
 @Composable
 fun MiPlatoBottomBar(navController: NavHostController, currentRoute: String?) {
-    NavigationBar(
-        containerColor = MaterialTheme.colorScheme.surface,
-        tonalElevation = 8.dp
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .navigationBarsPadding()
+            .padding(horizontal = 24.dp, vertical = 20.dp),
+        contentAlignment = Alignment.Center
     ) {
-        val items = listOf(Screen.Dashboard, Screen.FoodSearch, Screen.CameraAI, Screen.History, Screen.Profile)
-        items.forEach { screen ->
-            NavigationBarItem(
-                icon = { Icon(screen.icon!!, contentDescription = screen.label) },
-                label = { Text(screen.label!!) },
-                selected = currentRoute == screen.route,
-                onClick = {
-                    if (currentRoute != screen.route) {
-                        navController.navigate(screen.route) {
-                            popUpTo(Screen.Dashboard.route) { saveState = true }
-                            launchSingleTop = true
-                            restoreState = true
-                        }
-                    }
-                },
-                colors = NavigationBarItemDefaults.colors(
-                    selectedIconColor = MaterialTheme.colorScheme.onSecondaryContainer,
-                    unselectedIconColor = MaterialTheme.colorScheme.outline,
-                    indicatorColor = MaterialTheme.colorScheme.secondaryContainer
+        Surface(
+            modifier = Modifier
+                .height(64.dp)
+                .fillMaxWidth(),
+            shape = RoundedCornerShape(32.dp),
+            color = MaterialTheme.colorScheme.surface.copy(alpha = 0.7f),
+            tonalElevation = 0.dp, // This often causes a "dark layer" tint in M3
+            shadowElevation = 0.dp, // Remove shadow for a clean translucent look
+            border = BorderStroke(
+                width = 1.dp,
+                brush = Brush.linearGradient(
+                    listOf(
+                        MaterialTheme.colorScheme.primary.copy(alpha = 0.5f),
+                        Color.Transparent
+                    )
                 )
             )
+        ) {
+            Row(
+                modifier = Modifier.fillMaxSize(),
+                horizontalArrangement = Arrangement.SpaceEvenly,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                val items = listOf(Screen.Dashboard, Screen.FoodSearch, Screen.CameraAI, Screen.History, Screen.Profile)
+                items.forEach { screen ->
+                    val selected = currentRoute == screen.route
+                    IconButton(
+                        onClick = {
+                            if (currentRoute != screen.route) {
+                                navController.navigate(screen.route) {
+                                    popUpTo(Screen.Dashboard.route) { saveState = true }
+                                    launchSingleTop = true
+                                    restoreState = true
+                                }
+                            }
+                        }
+                    ) {
+                        Icon(
+                            imageVector = screen.icon!!,
+                            contentDescription = screen.label,
+                            tint = if (selected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
+                            modifier = if (selected) Modifier.size(28.dp) else Modifier.size(24.dp)
+                        )
+                    }
+                }
+            }
         }
     }
 }

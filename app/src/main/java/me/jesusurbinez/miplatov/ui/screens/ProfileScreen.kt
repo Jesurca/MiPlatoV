@@ -24,6 +24,8 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import me.jesusurbinez.miplatov.ui.viewmodels.ProfileViewModel
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.collectAsState
+import me.jesusurbinez.miplatov.ui.components.MiPlatoCard
+import androidx.compose.ui.graphics.Brush
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -68,7 +70,7 @@ fun ProfileScreen(
             }
         }
         
-        Text(text = uiState.userName, style = MaterialTheme.typography.headlineLarge, fontWeight = FontWeight.Bold)
+        Text(text = uiState.userName, style = MaterialTheme.typography.headlineLarge, fontWeight = FontWeight.ExtraBold, color = Color.White)
         Text(text = "Miembro desde ${uiState.memberSince}", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
 
         Spacer(Modifier.height(32.dp))
@@ -83,17 +85,14 @@ fun ProfileScreen(
         Spacer(Modifier.height(32.dp))
 
         // Options List
-        Surface(
+        MiPlatoCard(
             modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(16.dp),
-            color = MaterialTheme.colorScheme.surface,
-            shadowElevation = 1.dp
         ) {
             Column {
                 ProfileOption(label = "Datos personales", icon = Icons.Default.Person)
-                HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp), color = MaterialTheme.colorScheme.outlineVariant)
+                HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp), color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f))
                 ProfileOption(label = "Metas", icon = Icons.Default.Flag)
-                HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp), color = MaterialTheme.colorScheme.outlineVariant)
+                HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp), color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f))
                 ProfileOption(label = "Notificaciones", icon = Icons.Default.Notifications)
             }
         }
@@ -104,34 +103,34 @@ fun ProfileScreen(
         Button(
             onClick = { viewModel.logout(onLogout) },
             modifier = Modifier.fillMaxWidth().height(56.dp),
-            colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.errorContainer, contentColor = MaterialTheme.colorScheme.onErrorContainer),
-            shape = RoundedCornerShape(12.dp)
+            colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error.copy(alpha = 0.1f), contentColor = MaterialTheme.colorScheme.error),
+            shape = RoundedCornerShape(16.dp),
+            border = BorderStroke(1.dp, MaterialTheme.colorScheme.error.copy(alpha = 0.5f))
         ) {
             Icon(Icons.Default.Logout, contentDescription = null)
             Spacer(Modifier.width(12.dp))
-            Text("Cerrar Sesión", style = MaterialTheme.typography.titleLarge)
+            Text("Cerrar Sesión", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
         }
+        
+        Spacer(Modifier.height(100.dp)) // Padding for bottom bar
     }
 }
 
 @Composable
 fun ProfileStatCard(label: String, value: String, icon: androidx.compose.ui.graphics.vector.ImageVector, color: Color, modifier: Modifier = Modifier) {
-    Surface(
+    MiPlatoCard(
         modifier = modifier,
-        shape = RoundedCornerShape(16.dp),
-        color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
-        border = BorderStroke(0.5.dp, color.copy(alpha = 0.3f))
     ) {
         Column(modifier = Modifier.padding(12.dp), horizontalAlignment = Alignment.CenterHorizontally) {
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                 Icon(icon, contentDescription = null, modifier = Modifier.size(16.dp), tint = color)
                 Surface(color = color.copy(alpha = 0.1f), shape = CircleShape) {
-                    Text("META", modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp), fontSize = 8.sp, fontWeight = FontWeight.Bold, color = color)
+                    Text("META", modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp), fontSize = 8.sp, fontWeight = FontWeight.ExtraBold, color = color)
                 }
             }
             Spacer(Modifier.height(12.dp))
-            Text(text = value, style = MaterialTheme.typography.headlineLarge, color = color, fontSize = 22.sp)
-            Text(text = label, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            Text(text = value, style = MaterialTheme.typography.titleLarge, color = color, fontWeight = FontWeight.ExtraBold)
+            Text(text = label, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
             Spacer(Modifier.height(12.dp))
             LinearProgressIndicator(
                 progress = { 0.7f },
@@ -152,10 +151,10 @@ fun ProfileOption(label: String, icon: androidx.compose.ui.graphics.vector.Image
         verticalAlignment = Alignment.CenterVertically
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
-            Icon(icon, contentDescription = null, tint = MaterialTheme.colorScheme.outline)
+            Icon(icon, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
             Spacer(Modifier.width(16.dp))
-            Text(text = label, style = MaterialTheme.typography.titleLarge)
+            Text(text = label, style = MaterialTheme.typography.titleMedium, color = Color.White)
         }
-        Icon(Icons.Default.ChevronRight, contentDescription = null, tint = MaterialTheme.colorScheme.outline)
+        Icon(Icons.Default.ChevronRight, contentDescription = null, tint = MaterialTheme.colorScheme.onSurfaceVariant)
     }
 }

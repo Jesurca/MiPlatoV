@@ -163,17 +163,16 @@ fun DashboardScreen(
                     }
                 }
             }
+            
+            Spacer(Modifier.height(100.dp)) // Extra space for floating bottom bar
         }
     }
 }
 
 @Composable
 fun FoodItemCard(food: me.jesusurbinez.miplatov.data.FoodRecord) {
-    Surface(
+    MiPlatoCard(
         modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(16.dp),
-        color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.4f),
-        border = androidx.compose.foundation.BorderStroke(0.5.dp, MaterialTheme.colorScheme.outlineVariant)
     ) {
         Row(
             modifier = Modifier.padding(16.dp),

@@ -13,6 +13,7 @@ import androidx.camera.view.PreviewView
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
@@ -42,6 +43,8 @@ import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.isGranted
 import com.google.accompanist.permissions.rememberPermissionState
 import me.jesusurbinez.miplatov.data.ScannedFood
+import me.jesusurbinez.miplatov.ui.components.MiPlatoButton
+import me.jesusurbinez.miplatov.ui.components.MiPlatoCard
 import me.jesusurbinez.miplatov.ui.viewmodels.CameraAIViewModel
 import me.jesusurbinez.miplatov.ui.viewmodels.CameraUIState
 
@@ -103,20 +106,20 @@ fun CameraAIScreen(
                     AITag(
                         label = "Salmón Parrilla",
                         confidence = "94%",
-                        modifier = Modifier.align(Alignment.TopCenter).offset(y = 60.dp, x = (-40).dp)
+                        modifier = Modifier.align(Alignment.TopCenter).offset(y = 80.dp, x = (-40).dp)
                     )
                     
                     AITag(
                         label = "Tomate Cherry",
                         confidence = "88%",
                         isPrimary = false,
-                        modifier = Modifier.align(Alignment.BottomCenter).offset(y = (-60).dp, x = 40.dp)
+                        modifier = Modifier.align(Alignment.BottomCenter).offset(y = (-180).dp, x = 40.dp)
                     )
                 }
 
                 // Instruction / Result
                 Surface(
-                    modifier = Modifier.align(Alignment.TopCenter).padding(top = 32.dp),
+                    modifier = Modifier.align(Alignment.TopCenter).padding(top = 48.dp),
                     color = Color.Black.copy(alpha = 0.4f),
                     shape = CircleShape
                 ) {
@@ -162,7 +165,7 @@ fun CameraAIScreen(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(bottom = 120.dp),
+                    .padding(bottom = 140.dp), // Increased padding to clear the new floating bottom bar
                 horizontalArrangement = Arrangement.SpaceEvenly,
                 verticalAlignment = Alignment.CenterVertically
             ) {
@@ -225,16 +228,13 @@ private fun takePicture(
 
 @Composable
 fun ResultCard(food: ScannedFood, onConfirm: () -> Unit, onCancel: () -> Unit) {
-    Card(
+    MiPlatoCard(
         modifier = Modifier.padding(16.dp).width(300.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-        shape = RoundedCornerShape(24.dp),
-        elevation = CardDefaults.cardElevation(8.dp)
     ) {
         Column(modifier = Modifier.padding(20.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-            Text(food.name, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
+            Text(food.name, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold, color = Color.White)
             Spacer(Modifier.height(8.dp))
-            Text("${food.calories} kcal", style = MaterialTheme.typography.headlineMedium, color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.Bold)
+            Text("${food.calories} kcal", style = MaterialTheme.typography.headlineMedium, color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.ExtraBold)
             
             Spacer(Modifier.height(16.dp))
             
@@ -249,22 +249,20 @@ fun ResultCard(food: ScannedFood, onConfirm: () -> Unit, onCancel: () -> Unit) {
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                 OutlinedButton(
                     onClick = onCancel,
-                    modifier = Modifier.weight(1f),
-                    shape = RoundedCornerShape(12.dp)
+                    modifier = Modifier.weight(1f).height(48.dp),
+                    shape = RoundedCornerShape(12.dp),
+                    border = BorderStroke(1.dp, MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f))
                 ) {
-                    Icon(Icons.Rounded.Close, contentDescription = null)
+                    Icon(Icons.Rounded.Close, contentDescription = null, tint = Color.White)
                     Spacer(Modifier.width(4.dp))
-                    Text("Cancelar")
+                    Text("Cancelar", color = Color.White)
                 }
-                Button(
+                MiPlatoButton(
+                    text = "Añadir",
                     onClick = onConfirm,
-                    modifier = Modifier.weight(1f),
-                    shape = RoundedCornerShape(12.dp)
-                ) {
-                    Icon(Icons.Rounded.Check, contentDescription = null)
-                    Spacer(Modifier.width(4.dp))
-                    Text("Añadir")
-                }
+                    modifier = Modifier.weight(1f).height(48.dp),
+                    icon = Icons.Rounded.Check
+                )
             }
         }
     }
@@ -273,8 +271,8 @@ fun ResultCard(food: ScannedFood, onConfirm: () -> Unit, onCancel: () -> Unit) {
 @Composable
 fun MacroMiniItem(label: String, value: String) {
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
-        Text(label, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.outline)
-        Text(value, style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.Bold)
+        Text(label, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        Text(value, style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.Bold, color = Color.White)
     }
 }
 

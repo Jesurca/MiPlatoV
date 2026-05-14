@@ -24,6 +24,8 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import me.jesusurbinez.miplatov.ui.viewmodels.FoodSearchViewModel
 import me.jesusurbinez.miplatov.ui.viewmodels.AIResult
+import me.jesusurbinez.miplatov.ui.components.MiPlatoCard
+import androidx.compose.ui.graphics.Brush
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -68,7 +70,7 @@ fun FoodSearchScreen(
         Spacer(Modifier.height(24.dp))
 
         // Suggested Chips
-        Text(text = "Sugerencias", style = MaterialTheme.typography.headlineMedium, modifier = Modifier.padding(bottom = 12.dp))
+        Text(text = "Sugerencias", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold, color = Color.White, modifier = Modifier.padding(bottom = 12.dp))
         LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             items(uiState.suggestions) { item ->
                 SuggestionChip(label = item, onClick = { viewModel.onSearchQueryChange(item) })
@@ -83,13 +85,14 @@ fun FoodSearchScreen(
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Text(text = "Resultados Recientes (IA)", style = MaterialTheme.typography.headlineMedium)
+            Text(text = "Resultados Recientes (IA)", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold, color = Color.White)
         }
 
         LazyVerticalGrid(
             columns = GridCells.Fixed(1),
             verticalArrangement = Arrangement.spacedBy(16.dp),
-            modifier = Modifier.fillMaxSize()
+            modifier = Modifier.fillMaxSize(),
+            contentPadding = PaddingValues(bottom = 100.dp)
         ) {
             items(uiState.aiResults) { result ->
                 AICard(result, onClick = { 
@@ -119,13 +122,10 @@ fun SuggestionChip(label: String, onClick: () -> Unit) {
 
 @Composable
 fun AICard(result: AIResult, onClick: () -> Unit) {
-    Card(
+    MiPlatoCard(
         modifier = Modifier
             .fillMaxWidth()
             .clickable(onClick = onClick),
-        shape = RoundedCornerShape(12.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
     ) {
         Column(modifier = Modifier.padding(12.dp)) {
             // Image Placeholder
@@ -133,7 +133,7 @@ fun AICard(result: AIResult, onClick: () -> Unit) {
                 modifier = Modifier
                     .fillMaxWidth()
                     .aspectRatio(16f / 9f)
-                    .clip(RoundedCornerShape(8.dp))
+                    .clip(RoundedCornerShape(16.dp))
                     .background(MaterialTheme.colorScheme.surfaceVariant)
             ) {
                 // AI Badge
@@ -145,7 +145,7 @@ fun AICard(result: AIResult, onClick: () -> Unit) {
                     Row(modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp), verticalAlignment = Alignment.CenterVertically) {
                         Icon(Icons.Default.AutoAwesome, contentDescription = null, modifier = Modifier.size(14.dp), tint = MaterialTheme.colorScheme.onPrimary)
                         Spacer(Modifier.width(4.dp))
-                        Text("DETECTADO", style = MaterialTheme.typography.labelLarge, fontSize = 10.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onPrimary)
+                        Text("DETECTADO", style = MaterialTheme.typography.labelLarge, fontSize = 10.sp, fontWeight = FontWeight.ExtraBold, color = MaterialTheme.colorScheme.onPrimary)
                     }
                 }
             }
@@ -154,16 +154,16 @@ fun AICard(result: AIResult, onClick: () -> Unit) {
 
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                 Column {
-                    Text(text = result.title, style = MaterialTheme.typography.titleLarge)
+                    Text(text = result.title, style = MaterialTheme.typography.titleLarge, color = Color.White, fontWeight = FontWeight.Bold)
                     Text(
                         text = "${result.protein}g P • ${result.carbs}g C • ${result.fat}g G",
                         style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.outline
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
                 Column(horizontalAlignment = Alignment.End) {
-                    Text(text = result.kcal.toString(), style = MaterialTheme.typography.headlineMedium, color = MaterialTheme.colorScheme.primary)
-                    Text(text = "KCAL", style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.outline)
+                    Text(text = result.kcal.toString(), style = MaterialTheme.typography.headlineMedium, color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.ExtraBold)
+                    Text(text = "KCAL", style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
             }
 
@@ -172,15 +172,17 @@ fun AICard(result: AIResult, onClick: () -> Unit) {
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 result.tags.forEach { tag ->
                     Surface(
-                        color = MaterialTheme.colorScheme.surfaceVariant,
-                        shape = CircleShape
+                        color = MaterialTheme.colorScheme.primary.copy(alpha = 0.1f),
+                        shape = CircleShape,
+                        border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.2f))
                     ) {
                         Text(
                             text = tag,
                             modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp),
                             style = MaterialTheme.typography.labelLarge,
                             fontSize = 10.sp,
-                            fontWeight = FontWeight.Bold
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.primary
                         )
                     }
                 }

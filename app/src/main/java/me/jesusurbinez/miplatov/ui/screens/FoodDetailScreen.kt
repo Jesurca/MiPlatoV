@@ -21,6 +21,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.graphics.StrokeCap
 import me.jesusurbinez.miplatov.ui.components.MiPlatoButton
+import me.jesusurbinez.miplatov.ui.components.MiPlatoCard
+import me.jesusurbinez.miplatov.ui.theme.NeonYellow
+import androidx.compose.ui.graphics.Brush
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -29,12 +32,11 @@ fun FoodDetailScreen(onBack: () -> Unit) {
         topBar = { /* Minimalist: No Top Bar */ },
         bottomBar = {
             Surface(
-                modifier = Modifier.fillMaxWidth(),
-                shadowElevation = 8.dp,
-                color = MaterialTheme.colorScheme.surface
+                modifier = Modifier.fillMaxWidth().padding(bottom = 0.dp), // Removed specific padding here
+                color = Color.Transparent
             ) {
                 Row(
-                    modifier = Modifier.padding(20.dp).fillMaxWidth(),
+                    modifier = Modifier.navigationBarsPadding().padding(horizontal = 20.dp).padding(bottom = 100.dp).fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(16.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
@@ -47,10 +49,10 @@ fun FoodDetailScreen(onBack: () -> Unit) {
                     OutlinedIconButton(
                         onClick = {},
                         modifier = Modifier.size(56.dp),
-                        shape = RoundedCornerShape(12.dp),
-                        border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.3f))
+                        shape = RoundedCornerShape(16.dp),
+                        border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.5f))
                     ) {
-                        Icon(Icons.Default.CalendarToday, contentDescription = "Calendar", tint = MaterialTheme.colorScheme.onSurfaceVariant)
+                        Icon(Icons.Default.CalendarToday, contentDescription = "Calendar", tint = MaterialTheme.colorScheme.primary)
                     }
                 }
             }
@@ -78,30 +80,30 @@ fun FoodDetailScreen(onBack: () -> Unit) {
                     .padding(horizontal = 20.dp)
             ) {
                 // Header Card
-                Card(
+                MiPlatoCard(
                     modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(16.dp),
-                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-                    elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
                 ) {
                     Column(modifier = Modifier.padding(24.dp)) {
                         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                            Column {
+                            Column(modifier = Modifier.weight(1f)) {
                                 Surface(
-                                    color = MaterialTheme.colorScheme.secondaryContainer,
-                                    shape = CircleShape
+                                    color = MaterialTheme.colorScheme.secondary.copy(alpha = 0.1f),
+                                    shape = CircleShape,
+                                    border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.secondary.copy(alpha = 0.3f))
                                 ) {
                                     Text(
                                         text = "Almuerzo Saludable",
                                         modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp),
                                         style = MaterialTheme.typography.labelLarge,
-                                        color = MaterialTheme.colorScheme.onSecondaryContainer
+                                        color = MaterialTheme.colorScheme.secondary,
+                                        fontWeight = FontWeight.Bold
                                     )
                                 }
                                 Text(
                                     text = "Bowl de Quinoa y Salmón",
                                     style = MaterialTheme.typography.headlineLarge,
-                                    fontWeight = FontWeight.Bold,
+                                    fontWeight = FontWeight.ExtraBold,
+                                    color = Color.White,
                                     modifier = Modifier.padding(top = 8.dp)
                                 )
                                 Text(
@@ -115,7 +117,8 @@ fun FoodDetailScreen(onBack: () -> Unit) {
                                     text = "485",
                                     style = MaterialTheme.typography.displayLarge,
                                     color = MaterialTheme.colorScheme.primary,
-                                    lineHeight = 40.sp
+                                    lineHeight = 40.sp,
+                                    fontWeight = FontWeight.ExtraBold
                                 )
                                 Text(
                                     text = "KCAL TOTAL",
@@ -145,16 +148,14 @@ fun FoodDetailScreen(onBack: () -> Unit) {
                 // Micronutrients
                 Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(16.dp)) {
                     Column(modifier = Modifier.weight(1f)) {
-                        Surface(
+                        MiPlatoCard(
                             modifier = Modifier.fillMaxWidth(),
-                            shape = RoundedCornerShape(16.dp),
-                            color = MaterialTheme.colorScheme.surface
                         ) {
                             Column(modifier = Modifier.padding(16.dp)) {
                                 Row(verticalAlignment = Alignment.CenterVertically) {
                                     Icon(Icons.Default.Info, contentDescription = null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(20.dp))
                                     Spacer(Modifier.width(8.dp))
-                                    Text("Micronutrientes", style = MaterialTheme.typography.titleLarge)
+                                    Text("Micronutrientes", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold, color = Color.White)
                                 }
                                 Spacer(Modifier.height(16.dp))
                                 MicroProgress(label = "Fibra", value = "8.5g", percentage = 0.3f)
@@ -168,11 +169,9 @@ fun FoodDetailScreen(onBack: () -> Unit) {
                 Spacer(Modifier.height(24.dp))
 
                 // Health Insight
-                Surface(
+                MiPlatoCard(
                     modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(16.dp),
-                    color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.1f),
-                    border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.primaryContainer)
+                    borderGradient = listOf(MaterialTheme.colorScheme.primary.copy(alpha = 0.8f), Color.Transparent)
                 ) {
                     Row(modifier = Modifier.padding(20.dp), verticalAlignment = Alignment.Top) {
                         Icon(
@@ -183,7 +182,7 @@ fun FoodDetailScreen(onBack: () -> Unit) {
                         )
                         Spacer(Modifier.width(16.dp))
                         Column {
-                            Text("Insight Nutricional", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
+                            Text("Insight Nutricional", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold, color = Color.White)
                             Text(
                                 "Este alimento es una excelente fuente de ácidos grasos Omega-3 y proteínas de alta calidad, lo que favorece la salud cardiovascular y la recuperación muscular.",
                                 style = MaterialTheme.typography.bodyMedium,
@@ -192,6 +191,8 @@ fun FoodDetailScreen(onBack: () -> Unit) {
                         }
                     }
                 }
+                
+                Spacer(Modifier.height(100.dp)) // Padding for bottom bar
             }
         }
     }
@@ -202,7 +203,8 @@ fun MacroStatCard(label: String, value: String, percentage: Float, modifier: Mod
     Surface(
         modifier = modifier,
         shape = RoundedCornerShape(12.dp),
-        color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
+        color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f),
+        border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.1f))
     ) {
         Column(
             modifier = Modifier.padding(12.dp),
@@ -212,15 +214,15 @@ fun MacroStatCard(label: String, value: String, percentage: Float, modifier: Mod
                 CircularProgressIndicator(
                     progress = { percentage },
                     color = MaterialTheme.colorScheme.primary,
-                    trackColor = MaterialTheme.colorScheme.secondary.copy(alpha = 0.2f),
+                    trackColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.15f),
                     strokeWidth = 6.dp,
                     strokeCap = StrokeCap.Round
                 )
-                Text("${(percentage * 100).toInt()}%", style = MaterialTheme.typography.labelLarge, fontWeight = FontWeight.Bold)
+                Text("${(percentage * 100).toInt()}%", style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.Bold, color = Color.White)
             }
             Spacer(Modifier.height(4.dp))
-            Text(label, style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.onSurfaceVariant)
-            Text(value, style = MaterialTheme.typography.titleLarge)
+            Text(label, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            Text(value, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold, color = Color.White)
         }
     }
 }
@@ -230,13 +232,13 @@ fun MicroProgress(label: String, value: String, percentage: Float) {
     Column(modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp)) {
         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
             Text(label, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
-            Text(value, style = MaterialTheme.typography.titleLarge)
+            Text(value, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold, color = Color.White)
         }
         LinearProgressIndicator(
             progress = { percentage },
             modifier = Modifier.fillMaxWidth().height(8.dp).padding(top = 4.dp),
             color = MaterialTheme.colorScheme.primary,
-            trackColor = MaterialTheme.colorScheme.surfaceVariant,
+            trackColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.15f),
             strokeCap = StrokeCap.Round
         )
     }
