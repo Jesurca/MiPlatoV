@@ -24,6 +24,7 @@ import androidx.compose.material.icons.automirrored.rounded.ArrowBack
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material.icons.rounded.Check
 import androidx.compose.material.icons.rounded.Close
+import androidx.compose.material.icons.rounded.FlashOff
 import androidx.compose.material.icons.rounded.FlashOn
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -59,6 +60,7 @@ fun CameraAIScreen(
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val context = LocalContext.current
     val imageCapture = remember { ImageCapture.Builder().build() }
+    var isFlashEnabled by remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
         cameraPermissionState.launchPermissionRequest()
@@ -70,7 +72,7 @@ fun CameraAIScreen(
         .padding(innerPadding)
     ) {
         if (cameraPermissionState.status.isGranted) {
-            CameraPreview(imageCapture = imageCapture)
+            CameraPreview(imageCapture = imageCapture, torchEnabled = isFlashEnabled)
         } else {
             Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                 Text("Permiso de cámara no concedido", color = Color.White)
@@ -98,22 +100,6 @@ fun CameraAIScreen(
                             .offset(y = 100.dp),
                         color = MaterialTheme.colorScheme.primary,
                         thickness = 2.dp
-                    )
-                }
-
-                // AI Tags simulation (only if idle)
-                if (uiState is CameraUIState.Idle) {
-                    AITag(
-                        label = "Salmón Parrilla",
-                        confidence = "94%",
-                        modifier = Modifier.align(Alignment.TopCenter).offset(y = 80.dp, x = (-40).dp)
-                    )
-                    
-                    AITag(
-                        label = "Tomate Cherry",
-                        confidence = "88%",
-                        isPrimary = false,
-                        modifier = Modifier.align(Alignment.BottomCenter).offset(y = (-180).dp, x = 40.dp)
                     )
                 }
 
@@ -195,10 +181,17 @@ fun CameraAIScreen(
                 }
 
                 IconButton(
-                    onClick = {},
+                    onClick = {
+                        isFlashEnabled = !isFlashEnabled
+                        imageCapture.flashMode = if (isFlashEnabled) ImageCapture.FLASH_MODE_ON else ImageCapture.FLASH_MODE_OFF
+                    },
                     modifier = Modifier.size(48.dp).background(Color.White.copy(alpha = 0.2f), CircleShape)
                 ) {
-                    Icon(Icons.Rounded.FlashOn, contentDescription = "Flash", tint = Color.White)
+                    Icon(
+                        if (isFlashEnabled) Icons.Rounded.FlashOn else Icons.Rounded.FlashOff,
+                        contentDescription = "Flash",
+                        tint = if (isFlashEnabled) MaterialTheme.colorScheme.primary else Color.White
+                    )
                 }
             }
         }
@@ -277,10 +270,15 @@ fun MacroMiniItem(label: String, value: String) {
 }
 
 @Composable
-fun CameraPreview(imageCapture: ImageCapture) {
+fun CameraPreview(imageCapture: ImageCapture, torchEnabled: Boolean) {
     val lifecycleOwner = LocalLifecycleOwner.current
     val context = LocalContext.current
     val cameraProviderFuture = remember { ProcessCameraProvider.getInstance(context) }
+    var camera by remember { mutableStateOf<androidx.camera.core.Camera?>(null) }
+
+    LaunchedEffect(camera, torchEnabled) {
+        camera?.cameraControl?.enableTorch(torchEnabled)
+    }
 
     AndroidView(
         factory = { ctx ->
@@ -296,7 +294,7 @@ fun CameraPreview(imageCapture: ImageCapture) {
 
                 try {
                     cameraProvider.unbindAll()
-                    cameraProvider.bindToLifecycle(
+                    camera = cameraProvider.bindToLifecycle(
                         lifecycleOwner,
                         cameraSelector,
                         preview,
