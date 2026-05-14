@@ -5,6 +5,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.rounded.*
 import androidx.compose.material.icons.rounded.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -27,7 +28,7 @@ enum class Screen(val route: String, val icon: ImageVector? = null, val label: S
     Login("login"),
     Register("register"),
     Dashboard("dashboard", Icons.Rounded.Home, "Inicio"),
-    FoodSearch("search", Icons.Rounded.Search, "Buscar"),
+    FoodSearch("search", Icons.AutoMirrored.Rounded.Assignment, "Buscar"),
     CameraAI("camera", Icons.Rounded.PhotoCamera, "Cámara"),
     FoodDetail("detail"),
     History("history", Icons.Rounded.History, "Historial"),

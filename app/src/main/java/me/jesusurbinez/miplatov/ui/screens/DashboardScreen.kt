@@ -22,7 +22,9 @@ import me.jesusurbinez.miplatov.ui.components.MacroProgress
 import me.jesusurbinez.miplatov.ui.components.MiPlatoCard
 import me.jesusurbinez.miplatov.ui.viewmodels.DashboardViewModel
 
-import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Shadow
 
 @Composable
 fun DashboardScreen(
@@ -59,27 +61,46 @@ fun DashboardScreen(
                     val progress = if (viewModel.targetCalories > 0) 
                         (viewModel.consumedCalories.toFloat() / viewModel.targetCalories).coerceIn(0f, 1f)
                         else 0f
+                    
+                    val primaryColor = MaterialTheme.colorScheme.primary
+
+                    // Neon Glow Effect (Replaces shadow to avoid octagon artifact)
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .drawBehind {
+                                drawCircle(
+                                    brush = Brush.radialGradient(
+                                        colors = listOf(
+                                            primaryColor.copy(alpha = 0.3f),
+                                            Color.Transparent
+                                        ),
+                                        center = center,
+                                        radius = size.minDimension / 1.1f
+                                    ),
+                                    radius = size.minDimension / 1.1f
+                                )
+                            }
+                    )
                         
                     CircularProgressIndicator(
                         progress = { progress },
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .shadow(30.dp, CircleShape, ambientColor = MaterialTheme.colorScheme.primary, spotColor = MaterialTheme.colorScheme.primary),
-                        color = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.fillMaxSize(),
+                        color = primaryColor,
                         strokeWidth = 14.dp,
-                        trackColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.15f),
+                        trackColor = primaryColor.copy(alpha = 0.15f),
                         strokeCap = StrokeCap.Round
                     )
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
                         Text(
                             text = viewModel.consumedCalories.toString(),
                             style = MaterialTheme.typography.displayLarge.copy(
-                                shadow = androidx.compose.ui.graphics.Shadow(
-                                    color = MaterialTheme.colorScheme.primary,
+                                shadow = Shadow(
+                                    color = primaryColor,
                                     blurRadius = 15f
                                 )
                             ),
-                            color = MaterialTheme.colorScheme.primary,
+                            color = primaryColor,
                             fontWeight = FontWeight.ExtraBold
                         )
                         Text(
