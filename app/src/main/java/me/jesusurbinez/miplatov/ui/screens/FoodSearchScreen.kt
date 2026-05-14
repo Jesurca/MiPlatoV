@@ -12,6 +12,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Assignment
+import androidx.compose.material.icons.automirrored.filled.Send
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -45,40 +46,44 @@ fun FoodSearchScreen(
             .padding(innerPadding)
             .padding(20.dp)
     ) {
-        // Search Bar
+        // AI Agent Section
+        Text(
+            text = "Agente de Nutrición IA",
+            style = MaterialTheme.typography.headlineSmall,
+            fontWeight = FontWeight.ExtraBold,
+            color = MaterialTheme.colorScheme.primary
+        )
+        Text(
+            text = "Pregúntale a nuestra IA para obtener recomendaciones personalizadas de alimentos y sus valores nutricionales.",
+            style = MaterialTheme.typography.bodyMedium,
+            color = Color.White.copy(alpha = 0.7f),
+            modifier = Modifier.padding(vertical = 8.dp)
+        )
+
         OutlinedTextField(
-            value = uiState.searchQuery,
-            onValueChange = { viewModel.onSearchQueryChange(it) },
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(56.dp),
-            placeholder = { Text("Buscar alimentos...", color = MaterialTheme.colorScheme.outline) },
-            leadingIcon = { Icon(Icons.AutoMirrored.Filled.Assignment, contentDescription = null, tint = MaterialTheme.colorScheme.outline) },
+            value = uiState.aiPrompt,
+            onValueChange = { viewModel.onAiPromptChange(it) },
+            modifier = Modifier.fillMaxWidth(),
+            placeholder = { Text("Ej: Recomiéndame un desayuno alto en proteína...", fontSize = 14.sp) },
             trailingIcon = {
-                IconButton(onClick = onCameraClick) {
-                    Icon(Icons.Default.PhotoCamera, contentDescription = "Camera", tint = MaterialTheme.colorScheme.primary)
+                if (uiState.isRecommending) {
+                    CircularProgressIndicator(modifier = Modifier.size(24.dp), strokeWidth = 2.dp)
+                } else {
+                    IconButton(onClick = { viewModel.getAiRecommendation() }) {
+                        Icon(Icons.AutoMirrored.Filled.Send, contentDescription = "Enviar", tint = MaterialTheme.colorScheme.primary)
+                    }
                 }
             },
-            shape = RoundedCornerShape(12.dp),
+            shape = RoundedCornerShape(16.dp),
             colors = OutlinedTextFieldDefaults.colors(
-                unfocusedContainerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f),
+                unfocusedContainerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.2f),
                 focusedContainerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f),
-                unfocusedBorderColor = Color.Transparent,
+                unfocusedBorderColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.3f),
                 focusedBorderColor = MaterialTheme.colorScheme.primary
             )
         )
 
-        Spacer(Modifier.height(24.dp))
-
-        // Suggested Chips
-        Text(text = "Sugerencias", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold, color = Color.White, modifier = Modifier.padding(bottom = 12.dp))
-        LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            items(uiState.suggestions) { item ->
-                SuggestionChip(label = item, onClick = { viewModel.onSearchQueryChange(item) })
-            }
-        }
-
-        Spacer(Modifier.height(24.dp))
+        Spacer(Modifier.height(32.dp))
 
         // AI Results Section
         Row(
@@ -95,6 +100,15 @@ fun FoodSearchScreen(
             modifier = Modifier.fillMaxSize(),
             contentPadding = PaddingValues(bottom = 100.dp)
         ) {
+            // Show new AI recommendations first
+            items(uiState.recommendations) { result ->
+                AICard(result, onClick = { 
+                    viewModel.addFood(result)
+                    onBack()
+                })
+            }
+            
+            // Show historical/static AI results
             items(uiState.aiResults) { result ->
                 AICard(result, onClick = { 
                     viewModel.addFood(result)

@@ -63,4 +63,37 @@ class GeminiFoodService {
         }
         return@withContext null
     }
+
+    suspend fun recommendFood(userPrompt: String): ScannedFood? = withContext(Dispatchers.IO) {
+        val prompt = """
+            Based on the user's request: "$userPrompt", recommend a specific food or dish and provide its nutritional information.
+            Respond ONLY with a JSON object in the following format:
+            {
+              "name": "Food Name",
+              "calories": 0,
+              "protein": 0,
+              "carbs": 0,
+              "fat": 0
+            }
+            Be as accurate as possible.
+        """.trimIndent()
+
+        try {
+            val response = generativeModel.generateContent(prompt)
+            val jsonText = response.text?.replace("```json", "")?.replace("```", "")?.trim()
+            if (jsonText != null) {
+                val json = JSONObject(jsonText)
+                return@withContext ScannedFood(
+                    name = json.getString("name"),
+                    calories = json.getInt("calories"),
+                    protein = json.getInt("protein"),
+                    carbs = json.getInt("carbs"),
+                    fat = json.getInt("fat")
+                )
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+        return@withContext null
+    }
 }
