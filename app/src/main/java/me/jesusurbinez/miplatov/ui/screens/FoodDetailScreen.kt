@@ -136,9 +136,9 @@ fun FoodDetailScreen(onBack: () -> Unit) {
                             modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.spacedBy(12.dp)
                         ) {
-                            MacroStatCard(label = "Proteínas", value = "32g", percentage = 0.4f, modifier = Modifier.weight(1f))
-                            MacroStatCard(label = "Carbos", value = "45g", percentage = 0.3f, modifier = Modifier.weight(1f))
-                            MacroStatCard(label = "Grasas", value = "18g", percentage = 0.3f, modifier = Modifier.weight(1f))
+                            MacroStatCard(label = "Proteínas", value = "32g", percentage = 0.4f, color = MaterialTheme.colorScheme.tertiary, modifier = Modifier.weight(1f))
+                            MacroStatCard(label = "Carbos", value = "45g", percentage = 0.3f, color = MaterialTheme.colorScheme.secondary, modifier = Modifier.weight(1f))
+                            MacroStatCard(label = "Grasas", value = "18g", percentage = 0.3f, color = me.jesusurbinez.miplatov.ui.theme.NeonOrange, modifier = Modifier.weight(1f))
                         }
                     }
                 }
@@ -199,12 +199,12 @@ fun FoodDetailScreen(onBack: () -> Unit) {
 }
 
 @Composable
-fun MacroStatCard(label: String, value: String, percentage: Float, modifier: Modifier = Modifier) {
+fun MacroStatCard(label: String, value: String, percentage: Float, color: Color, modifier: Modifier = Modifier) {
     Surface(
         modifier = modifier,
         shape = RoundedCornerShape(12.dp),
         color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f),
-        border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.1f))
+        border = androidx.compose.foundation.BorderStroke(1.dp, color.copy(alpha = 0.1f))
     ) {
         Column(
             modifier = Modifier.padding(12.dp),
@@ -213,8 +213,8 @@ fun MacroStatCard(label: String, value: String, percentage: Float, modifier: Mod
             Box(contentAlignment = Alignment.Center, modifier = Modifier.size(56.dp)) {
                 CircularProgressIndicator(
                     progress = { percentage },
-                    color = MaterialTheme.colorScheme.primary,
-                    trackColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.15f),
+                    color = color,
+                    trackColor = color.copy(alpha = 0.15f),
                     strokeWidth = 6.dp,
                     strokeCap = StrokeCap.Round
                 )

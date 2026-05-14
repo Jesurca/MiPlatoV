@@ -8,7 +8,10 @@ val DarkGrey = Color(0xFF121212)
 val SurfaceGrey = Color(0xFF1E1E1E)
 val NeonPurple = Color(0xFFBB86FC)
 val NeonPink = Color(0xFFFF007F)
+val NeonOrange = Color(0xFFFF9F1C)
 val NeonYellow = Color(0xFFFFFF00)
+val NeonSky = Color(0xFF00E5FF)
+val NeonGreen = Color(0xFF39FF14)
 
 // Dark Neo Theme Colors
 val Primary = NeonCyan

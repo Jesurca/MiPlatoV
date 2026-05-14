@@ -85,7 +85,7 @@ fun NutritionalHistoryScreen(
             }
 
             val proteinProgress = if (uiState.targetProtein > 0) uiState.proteinGrams.toFloat() / uiState.targetProtein else 0f
-            MacroMiniCard(label = "Proteína", value = "${uiState.proteinGrams}g", percentage = proteinProgress, icon = Icons.Default.FitnessCenter, modifier = Modifier.weight(1f))
+            MacroMiniCard(label = "Proteína", value = "${uiState.proteinGrams}g", percentage = proteinProgress, color = MaterialTheme.colorScheme.tertiary, icon = Icons.Default.FitnessCenter, modifier = Modifier.weight(1f))
         }
 
         Spacer(Modifier.height(24.dp))
@@ -118,22 +118,22 @@ fun DayCard(day: DayInfo, isSelected: Boolean) {
 }
 
 @Composable
-fun MacroMiniCard(label: String, value: String, percentage: Float, icon: androidx.compose.ui.graphics.vector.ImageVector, modifier: Modifier = Modifier) {
+fun MacroMiniCard(label: String, value: String, percentage: Float, color: Color, icon: androidx.compose.ui.graphics.vector.ImageVector, modifier: Modifier = Modifier) {
     MiPlatoCard(
         modifier = modifier.height(110.dp),
     ) {
         Column(modifier = Modifier.padding(12.dp), verticalArrangement = Arrangement.SpaceBetween) {
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                 Text(label, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                Icon(icon, contentDescription = null, modifier = Modifier.size(14.dp), tint = MaterialTheme.colorScheme.secondary)
+                Icon(icon, contentDescription = null, modifier = Modifier.size(14.dp), tint = color)
             }
             Column {
                 Text(value, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold, color = Color.White)
                 LinearProgressIndicator(
                     progress = { percentage }, 
                     modifier = Modifier.fillMaxWidth().height(4.dp).padding(top = 4.dp), 
-                    color = MaterialTheme.colorScheme.secondary, 
-                    trackColor = MaterialTheme.colorScheme.secondary.copy(alpha = 0.15f), 
+                    color = color,
+                    trackColor = color.copy(alpha = 0.15f),
                     strokeCap = StrokeCap.Round
                 )
             }
@@ -163,7 +163,10 @@ fun FoodListItem(item: FoodItem) {
             Spacer(Modifier.width(16.dp))
             Column(modifier = Modifier.weight(1f)) {
                 Text(item.name, style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.Bold, color = Color.White)
-                Text("${item.kcal} kcal • ${item.protein}g Proteína", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                Row {
+                    Text("${item.kcal} kcal • ", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Text("${item.protein}g Proteína", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.tertiary, fontWeight = FontWeight.Bold)
+                }
             }
             IconButton(onClick = {}) { Icon(Icons.Default.MoreVert, contentDescription = null, tint = MaterialTheme.colorScheme.onSurfaceVariant) }
         }

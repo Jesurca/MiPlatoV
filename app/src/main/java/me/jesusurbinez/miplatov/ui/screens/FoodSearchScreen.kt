@@ -155,11 +155,36 @@ fun AICard(result: AIResult, onClick: () -> Unit) {
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                 Column {
                     Text(text = result.title, style = MaterialTheme.typography.titleLarge, color = Color.White, fontWeight = FontWeight.Bold)
-                    Text(
-                        text = "${result.protein}g P • ${result.carbs}g C • ${result.fat}g G",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
+                    Row {
+                        Text(
+                            text = "${result.protein}g P",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.tertiary,
+                            fontWeight = FontWeight.Bold
+                        )
+                        Text(
+                            text = " • ",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                        Text(
+                            text = "${result.carbs}g C",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.secondary,
+                            fontWeight = FontWeight.Bold
+                        )
+                        Text(
+                            text = " • ",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                        Text(
+                            text = "${result.fat}g G",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = me.jesusurbinez.miplatov.ui.theme.NeonOrange,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
                 }
                 Column(horizontalAlignment = Alignment.End) {
                     Text(text = result.kcal.toString(), style = MaterialTheme.typography.headlineMedium, color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.ExtraBold)

@@ -105,7 +105,7 @@ fun DashboardScreen(
                     modifier = Modifier.fillMaxWidth().padding(top = 16.dp),
                     horizontalArrangement = Arrangement.SpaceEvenly
                 ) {
-                    SummaryStat(label = "Restantes", value = viewModel.remainingCalories.toString(), color = MaterialTheme.colorScheme.secondary)
+                    SummaryStat(label = "Restantes", value = viewModel.remainingCalories.toString(), color = me.jesusurbinez.miplatov.ui.theme.NeonGreen)
                     VerticalDivider(modifier = Modifier.height(40.dp).width(1.dp), color = MaterialTheme.colorScheme.outlineVariant)
                     SummaryStat(label = "Objetivo", value = viewModel.targetCalories.toString(), color = me.jesusurbinez.miplatov.ui.theme.NeonYellow)
                 }
@@ -122,9 +122,9 @@ fun DashboardScreen(
                     fontWeight = FontWeight.Bold
                 )
 
-                MacroProgress(label = "Proteínas", currentValue = viewModel.proteinCurrent, targetValue = viewModel.proteinTarget, color = MaterialTheme.colorScheme.primary)
+                MacroProgress(label = "Proteínas", currentValue = viewModel.proteinCurrent, targetValue = viewModel.proteinTarget, color = MaterialTheme.colorScheme.tertiary)
                 MacroProgress(label = "Carbohidratos", currentValue = viewModel.carbsCurrent, targetValue = viewModel.carbsTarget, color = MaterialTheme.colorScheme.secondary)
-                MacroProgress(label = "Grasas", currentValue = viewModel.fatCurrent, targetValue = viewModel.fatTarget, color = MaterialTheme.colorScheme.tertiary)
+                MacroProgress(label = "Grasas", currentValue = viewModel.fatCurrent, targetValue = viewModel.fatTarget, color = me.jesusurbinez.miplatov.ui.theme.NeonOrange)
             }
         }
 
@@ -200,16 +200,30 @@ fun FoodItemCard(food: me.jesusurbinez.miplatov.data.FoodRecord) {
                 )
             }
             Column(horizontalAlignment = Alignment.End) {
-                Text(
-                    text = "${food.protein}g P • ${food.carbs}g C",
-                    style = MaterialTheme.typography.labelMedium,
-                    color = MaterialTheme.colorScheme.primary,
-                    fontWeight = FontWeight.Bold
-                )
+                Row {
+                    Text(
+                        text = "${food.protein}g P",
+                        style = MaterialTheme.typography.labelMedium,
+                        color = MaterialTheme.colorScheme.tertiary,
+                        fontWeight = FontWeight.Bold
+                    )
+                    Text(
+                        text = " • ",
+                        style = MaterialTheme.typography.labelMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                    Text(
+                        text = "${food.carbs}g C",
+                        style = MaterialTheme.typography.labelMedium,
+                        color = MaterialTheme.colorScheme.secondary,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
                 Text(
                     text = "${food.fat}g G",
                     style = MaterialTheme.typography.labelSmall,
-                    color = MaterialTheme.colorScheme.outline
+                    color = me.jesusurbinez.miplatov.ui.theme.NeonOrange,
+                    fontWeight = FontWeight.Bold
                 )
             }
         }
