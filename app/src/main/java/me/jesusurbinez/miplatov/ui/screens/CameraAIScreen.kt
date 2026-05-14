@@ -276,13 +276,28 @@ fun CameraPreview(imageCapture: ImageCapture, torchEnabled: Boolean) {
     val cameraProviderFuture = remember { ProcessCameraProvider.getInstance(context) }
     var camera by remember { mutableStateOf<androidx.camera.core.Camera?>(null) }
 
+    // Liberar cámara inmediatamente al salir de la pantalla
+    DisposableEffect(Unit) {
+        onDispose {
+            try {
+                val cameraProvider = cameraProviderFuture.get()
+                cameraProvider.unbindAll()
+            } catch (e: Exception) {
+                Log.e("CameraPreview", "Error al liberar cámara", e)
+            }
+        }
+    }
+
     LaunchedEffect(camera, torchEnabled) {
         camera?.cameraControl?.enableTorch(torchEnabled)
     }
 
     AndroidView(
         factory = { ctx ->
-            val previewView = PreviewView(ctx)
+            val previewView = PreviewView(ctx).apply {
+                // COMPATIBLE usa TextureView, que se integra mejor con las animaciones de Compose
+                implementationMode = PreviewView.ImplementationMode.COMPATIBLE
+            }
             val executor = ContextCompat.getMainExecutor(ctx)
             cameraProviderFuture.addListener({
                 val cameraProvider = cameraProviderFuture.get()
