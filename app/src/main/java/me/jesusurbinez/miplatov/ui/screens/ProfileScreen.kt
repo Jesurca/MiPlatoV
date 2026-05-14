@@ -1,5 +1,6 @@
 package me.jesusurbinez.miplatov.ui.screens
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -118,8 +119,8 @@ fun ProfileStatCard(label: String, value: String, icon: androidx.compose.ui.grap
     Surface(
         modifier = modifier,
         shape = RoundedCornerShape(16.dp),
-        color = MaterialTheme.colorScheme.surface,
-        shadowElevation = 1.dp
+        color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
+        border = BorderStroke(0.5.dp, color.copy(alpha = 0.3f))
     ) {
         Column(modifier = Modifier.padding(12.dp), horizontalAlignment = Alignment.CenterHorizontally) {
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
@@ -132,7 +133,13 @@ fun ProfileStatCard(label: String, value: String, icon: androidx.compose.ui.grap
             Text(text = value, style = MaterialTheme.typography.headlineLarge, color = color, fontSize = 22.sp)
             Text(text = label, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
             Spacer(Modifier.height(12.dp))
-            LinearProgressIndicator(progress = { 0.7f }, modifier = Modifier.fillMaxWidth().height(4.dp), color = color, trackColor = color.copy(alpha = 0.2f), strokeCap = StrokeCap.Round)
+            LinearProgressIndicator(
+                progress = { 0.7f },
+                modifier = Modifier.fillMaxWidth().height(4.dp),
+                color = color,
+                trackColor = color.copy(alpha = 0.15f),
+                strokeCap = StrokeCap.Round
+            )
         }
     }
 }

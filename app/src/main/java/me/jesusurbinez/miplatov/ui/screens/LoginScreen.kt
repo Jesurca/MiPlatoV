@@ -22,6 +22,8 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import me.jesusurbinez.miplatov.ui.components.MiPlatoButton
 import me.jesusurbinez.miplatov.ui.viewmodels.LoginViewModel
 
+import me.jesusurbinez.miplatov.ui.components.MiPlatoCard
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LoginScreen(
@@ -37,23 +39,22 @@ fun LoginScreen(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-        // Logo
+        // Logo with Glow effect
         Text(
             text = "MiPlato",
-            style = MaterialTheme.typography.displayLarge,
+            style = MaterialTheme.typography.displayLarge.copy(
+                shadow = androidx.compose.ui.graphics.Shadow(
+                    color = MaterialTheme.colorScheme.primary,
+                    blurRadius = 20f
+                )
+            ),
             color = MaterialTheme.colorScheme.primary,
             fontWeight = FontWeight.ExtraBold,
             modifier = Modifier.padding(bottom = 32.dp)
         )
 
         // Login Card
-        Card(
-            modifier = Modifier
-                .fillMaxWidth()
-                .border(1.dp, MaterialTheme.colorScheme.outlineVariant, RoundedCornerShape(16.dp)),
-            shape = RoundedCornerShape(16.dp),
-            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
-        ) {
+        MiPlatoCard {
             Column(
                 modifier = Modifier.padding(24.dp),
                 verticalArrangement = Arrangement.spacedBy(16.dp)
@@ -61,7 +62,8 @@ fun LoginScreen(
                 Text(
                     text = "Iniciar sesión",
                     style = MaterialTheme.typography.headlineMedium,
-                    color = MaterialTheme.colorScheme.onSurface
+                    color = Color.White,
+                    fontWeight = FontWeight.Bold
                 )
 
                 if (viewModel.errorMessage != null) {
@@ -92,12 +94,12 @@ fun LoginScreen(
                         onValueChange = { viewModel.onEmailChange(it) },
                         modifier = Modifier.fillMaxWidth(),
                         placeholder = { Text("nombre@ejemplo.com") },
-                        leadingIcon = { Icon(Icons.Default.Email, contentDescription = null) },
+                        leadingIcon = { Icon(Icons.Default.Email, contentDescription = null, tint = MaterialTheme.colorScheme.primary) },
                         shape = RoundedCornerShape(12.dp),
                         colors = OutlinedTextFieldDefaults.colors(
-                            unfocusedContainerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f),
-                            focusedContainerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f),
-                            unfocusedBorderColor = Color.Transparent,
+                            unfocusedContainerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.5f),
+                            focusedContainerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.8f),
+                            unfocusedBorderColor = MaterialTheme.colorScheme.outlineVariant,
                             focusedBorderColor = MaterialTheme.colorScheme.primary
                         )
                     )
@@ -115,13 +117,13 @@ fun LoginScreen(
                         onValueChange = { viewModel.onPasswordChange(it) },
                         modifier = Modifier.fillMaxWidth(),
                         visualTransformation = PasswordVisualTransformation(),
-                        leadingIcon = { Icon(Icons.Default.Lock, contentDescription = null) },
+                        leadingIcon = { Icon(Icons.Default.Lock, contentDescription = null, tint = MaterialTheme.colorScheme.primary) },
                         trailingIcon = { Icon(Icons.Default.VisibilityOff, contentDescription = null) },
                         shape = RoundedCornerShape(12.dp),
                         colors = OutlinedTextFieldDefaults.colors(
-                            unfocusedContainerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f),
-                            focusedContainerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f),
-                            unfocusedBorderColor = Color.Transparent,
+                            unfocusedContainerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.5f),
+                            focusedContainerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.8f),
+                            unfocusedBorderColor = MaterialTheme.colorScheme.outlineVariant,
                             focusedBorderColor = MaterialTheme.colorScheme.primary
                         )
                     )
@@ -132,7 +134,7 @@ fun LoginScreen(
                     Text(
                         text = "¿Olvidaste tu contraseña?",
                         style = MaterialTheme.typography.labelLarge,
-                        color = MaterialTheme.colorScheme.primary,
+                        color = MaterialTheme.colorScheme.secondary,
                         modifier = Modifier.clickable { viewModel.resetPassword() }
                     )
                 }
@@ -144,9 +146,7 @@ fun LoginScreen(
                     } else {
                         MiPlatoButton(
                             text = "Ingresar",
-                            onClick = { viewModel.login(onLoginSuccess) },
-                            containerColor = MaterialTheme.colorScheme.primary,
-                            contentColor = MaterialTheme.colorScheme.onPrimary
+                            onClick = { viewModel.login(onLoginSuccess) }
                         )
                     }
                 }
@@ -172,13 +172,14 @@ fun LoginScreen(
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(56.dp),
-                    shape = RoundedCornerShape(12.dp),
-                    border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)
+                    shape = RoundedCornerShape(16.dp),
+                    border = BorderStroke(1.dp, MaterialTheme.colorScheme.secondary)
                 ) {
                     Text(
                         text = "Iniciar sesión con Google",
-                        style = MaterialTheme.typography.titleLarge,
-                        color = MaterialTheme.colorScheme.onSurface
+                        style = MaterialTheme.typography.titleMedium,
+                        color = MaterialTheme.colorScheme.secondary,
+                        fontWeight = FontWeight.Bold
                     )
                 }
             }
@@ -186,7 +187,7 @@ fun LoginScreen(
 
         // Sign up link
         Spacer(Modifier.height(32.dp))
-        Row {
+        Row(verticalAlignment = Alignment.CenterVertically) {
             Text(
                 text = "¿No tienes una cuenta? ",
                 style = MaterialTheme.typography.bodyMedium,

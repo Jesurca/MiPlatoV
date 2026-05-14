@@ -4,7 +4,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 
-private val LightColorScheme = lightColorScheme(
+private val DarkColorScheme = androidx.compose.material3.darkColorScheme(
     primary = Primary,
     onPrimary = OnPrimary,
     primaryContainer = PrimaryContainer,
@@ -20,15 +20,20 @@ private val LightColorScheme = lightColorScheme(
     background = Background,
     onBackground = OnBackground,
     surface = Surface,
-    onSurface = OnSurface
+    onSurface = OnSurface,
+    surfaceVariant = SurfaceVariant,
+    onSurfaceVariant = OnSurfaceVariant
 )
 
 @Composable
 fun MiPlatoVTheme(
+    darkTheme: Boolean = true, // Default to dark for "Dark Neo"
     content: @Composable () -> Unit
 ) {
+    val colorScheme = DarkColorScheme
+
     MaterialTheme(
-        colorScheme = LightColorScheme,
+        colorScheme = colorScheme,
         typography = Typography,
         content = content
     )

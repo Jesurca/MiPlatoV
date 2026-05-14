@@ -25,6 +25,8 @@ import me.jesusurbinez.miplatov.data.UserGoal
 import me.jesusurbinez.miplatov.ui.components.MiPlatoButton
 import me.jesusurbinez.miplatov.ui.viewmodels.RegisterViewModel
 
+import me.jesusurbinez.miplatov.ui.components.MiPlatoCard
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RegisterScreen(
@@ -48,25 +50,25 @@ fun RegisterScreen(
         ) {
             Text(
                 text = "MiPlato",
-                style = MaterialTheme.typography.displayLarge,
+                style = MaterialTheme.typography.displayLarge.copy(
+                    shadow = androidx.compose.ui.graphics.Shadow(
+                        color = MaterialTheme.colorScheme.primary,
+                        blurRadius = 20f
+                    )
+                ),
                 color = MaterialTheme.colorScheme.primary,
                 fontWeight = FontWeight.ExtraBold
             )
             Text(
                 text = "Tu compañero inteligente para una vida más saludable.",
-                style = MaterialTheme.typography.headlineMedium,
+                style = MaterialTheme.typography.titleMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.padding(top = 8.dp)
             )
         }
 
         // Registration Card
-        Card(
-            modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(16.dp),
-            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-            elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
-        ) {
+        MiPlatoCard {
             Column(
                 modifier = Modifier.padding(24.dp),
                 verticalArrangement = Arrangement.spacedBy(16.dp)
@@ -74,12 +76,13 @@ fun RegisterScreen(
                 Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
                     Text(
                         text = "Crea tu cuenta",
-                        style = MaterialTheme.typography.headlineLarge,
-                        color = MaterialTheme.colorScheme.onSurface
+                        style = MaterialTheme.typography.headlineMedium,
+                        color = Color.White,
+                        fontWeight = FontWeight.Bold
                     )
                     Text(
                         text = "Comienza tu viaje hacia una mejor nutrición hoy mismo.",
-                        style = MaterialTheme.typography.bodyMedium,
+                        style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
@@ -141,20 +144,28 @@ fun RegisterScreen(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
-                        UserGoal.values().forEach { goal ->
+                        UserGoal.entries.forEach { goal ->
                             FilterChip(
                                 selected = viewModel.selectedGoal == goal,
                                 onClick = { viewModel.onGoalChange(goal) },
                                 label = { 
                                     Text(
                                         text = goal.label,
-                                        style = MaterialTheme.typography.labelMedium
+                                        style = MaterialTheme.typography.labelSmall
                                     ) 
                                 },
                                 modifier = Modifier.weight(1f),
                                 colors = FilterChipDefaults.filterChipColors(
-                                    selectedContainerColor = MaterialTheme.colorScheme.primaryContainer,
-                                    selectedLabelColor = MaterialTheme.colorScheme.onPrimaryContainer
+                                    selectedContainerColor = MaterialTheme.colorScheme.primary,
+                                    selectedLabelColor = MaterialTheme.colorScheme.onPrimary,
+                                    containerColor = MaterialTheme.colorScheme.surface,
+                                    labelColor = MaterialTheme.colorScheme.onSurfaceVariant
+                                ),
+                                border = FilterChipDefaults.filterChipBorder(
+                                    enabled = true,
+                                    selected = viewModel.selectedGoal == goal,
+                                    borderColor = MaterialTheme.colorScheme.outlineVariant,
+                                    selectedBorderColor = MaterialTheme.colorScheme.primary
                                 )
                             )
                         }
@@ -171,9 +182,7 @@ fun RegisterScreen(
                         MiPlatoButton(
                             text = "Crear cuenta",
                             onClick = { viewModel.register(onRegisterSuccess) },
-                            icon = Icons.Default.ArrowForward,
-                            containerColor = MaterialTheme.colorScheme.primary,
-                            contentColor = MaterialTheme.colorScheme.onPrimary
+                            icon = Icons.Default.ArrowForward
                         )
                     }
                 }
@@ -185,7 +194,7 @@ fun RegisterScreen(
                 ) {
                     HorizontalDivider(modifier = Modifier.weight(1f), color = MaterialTheme.colorScheme.outlineVariant)
                     Text(
-                        text = "o regístrate con",
+                        text = "o",
                         modifier = Modifier.padding(horizontal = 16.dp),
                         style = MaterialTheme.typography.labelLarge,
                         color = MaterialTheme.colorScheme.outline
@@ -204,7 +213,7 @@ fun RegisterScreen(
 
                 // Login Link
                 Box(modifier = Modifier.fillMaxWidth().padding(top = 16.dp), contentAlignment = Alignment.Center) {
-                    Row {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
                         Text(
                             text = "¿Ya tengo una cuenta? ",
                             style = MaterialTheme.typography.bodyMedium,
@@ -212,7 +221,7 @@ fun RegisterScreen(
                         )
                         Text(
                             text = "Iniciar sesión",
-                            style = MaterialTheme.typography.bodyLarge,
+                            style = MaterialTheme.typography.titleLarge,
                             color = MaterialTheme.colorScheme.primary,
                             fontWeight = FontWeight.Bold,
                             modifier = Modifier.clickable { onNavigateToLogin() }
@@ -245,13 +254,13 @@ fun RegisterField(
             onValueChange = onValueChange,
             modifier = Modifier.fillMaxWidth(),
             placeholder = { Text(placeholder) },
-            leadingIcon = { Icon(icon, contentDescription = null, tint = MaterialTheme.colorScheme.outline) },
+            leadingIcon = { Icon(icon, contentDescription = null, tint = MaterialTheme.colorScheme.primary) },
             visualTransformation = if (isPassword) PasswordVisualTransformation() else androidx.compose.ui.text.input.VisualTransformation.None,
             shape = RoundedCornerShape(12.dp),
             colors = OutlinedTextFieldDefaults.colors(
-                unfocusedContainerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f),
-                focusedContainerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f),
-                unfocusedBorderColor = Color.Transparent,
+                unfocusedContainerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.5f),
+                focusedContainerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.8f),
+                unfocusedBorderColor = MaterialTheme.colorScheme.outlineVariant,
                 focusedBorderColor = MaterialTheme.colorScheme.primary
             )
         )
@@ -263,9 +272,14 @@ fun SocialButton(text: String, modifier: Modifier = Modifier) {
     OutlinedButton(
         onClick = { },
         modifier = modifier.height(48.dp),
-        shape = RoundedCornerShape(12.dp),
-        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)
+        shape = RoundedCornerShape(16.dp),
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.secondary)
     ) {
-        Text(text = text, style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        Text(
+            text = text, 
+            style = MaterialTheme.typography.labelLarge, 
+            color = MaterialTheme.colorScheme.secondary,
+            fontWeight = FontWeight.Bold
+        )
     }
 }

@@ -22,6 +22,8 @@ import me.jesusurbinez.miplatov.ui.components.MacroProgress
 import me.jesusurbinez.miplatov.ui.components.MiPlatoCard
 import me.jesusurbinez.miplatov.ui.viewmodels.DashboardViewModel
 
+import androidx.compose.ui.draw.shadow
+
 @Composable
 fun DashboardScreen(
     innerPadding: PaddingValues = PaddingValues(0.dp),
@@ -30,6 +32,7 @@ fun DashboardScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
+            .background(MaterialTheme.colorScheme.background)
             .padding(innerPadding)
             .padding(20.dp)
             .verticalScroll(rememberScrollState()),
@@ -44,13 +47,14 @@ fun DashboardScreen(
                 Text(
                     text = "Resumen Diario",
                     style = MaterialTheme.typography.titleLarge,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    color = Color.White,
+                    fontWeight = FontWeight.Bold,
                     modifier = Modifier.align(Alignment.Start)
                 )
                 
                 Spacer(Modifier.height(24.dp))
                 
-                // Circular Progress
+                // Circular Progress with Neo Glow
                 Box(contentAlignment = Alignment.Center, modifier = Modifier.size(240.dp)) {
                     val progress = if (viewModel.targetCalories > 0) 
                         (viewModel.consumedCalories.toFloat() / viewModel.targetCalories).coerceIn(0f, 1f)
@@ -58,24 +62,31 @@ fun DashboardScreen(
                         
                     CircularProgressIndicator(
                         progress = { progress },
-                        modifier = Modifier.fillMaxSize(),
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .shadow(30.dp, CircleShape, ambientColor = MaterialTheme.colorScheme.primary, spotColor = MaterialTheme.colorScheme.primary),
                         color = MaterialTheme.colorScheme.primary,
-                        strokeWidth = 12.dp,
-                        trackColor = MaterialTheme.colorScheme.secondaryContainer,
+                        strokeWidth = 14.dp,
+                        trackColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.15f),
                         strokeCap = StrokeCap.Round
                     )
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
                         Text(
                             text = viewModel.consumedCalories.toString(),
-                            style = MaterialTheme.typography.displayLarge,
+                            style = MaterialTheme.typography.displayLarge.copy(
+                                shadow = androidx.compose.ui.graphics.Shadow(
+                                    color = MaterialTheme.colorScheme.primary,
+                                    blurRadius = 15f
+                                )
+                            ),
                             color = MaterialTheme.colorScheme.primary,
-                            fontWeight = FontWeight.Bold
+                            fontWeight = FontWeight.ExtraBold
                         )
                         Text(
                             text = "KCAL CONSUMIDAS",
                             style = MaterialTheme.typography.labelLarge,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            letterSpacing = 1.sp
+                            letterSpacing = 2.sp
                         )
                         Spacer(Modifier.height(4.dp))
                         Text(
@@ -86,39 +97,45 @@ fun DashboardScreen(
                     }
                 }
 
-                Spacer(Modifier.height(24.dp))
+                Spacer(Modifier.height(32.dp))
                 
-                HorizontalDivider(color = MaterialTheme.colorScheme.surfaceVariant)
+                HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f))
                 
                 Row(
                     modifier = Modifier.fillMaxWidth().padding(top = 16.dp),
                     horizontalArrangement = Arrangement.SpaceEvenly
                 ) {
-                    SummaryStat(label = "Restantes", value = viewModel.remainingCalories.toString())
-                    VerticalDivider(modifier = Modifier.height(40.dp).width(1.dp), color = MaterialTheme.colorScheme.surfaceVariant)
-                    SummaryStat(label = "Objetivo", value = viewModel.targetCalories.toString())
+                    SummaryStat(label = "Restantes", value = viewModel.remainingCalories.toString(), color = MaterialTheme.colorScheme.secondary)
+                    VerticalDivider(modifier = Modifier.height(40.dp).width(1.dp), color = MaterialTheme.colorScheme.outlineVariant)
+                    SummaryStat(label = "Objetivo", value = viewModel.targetCalories.toString(), color = me.jesusurbinez.miplatov.ui.theme.NeonYellow)
                 }
             }
         }
 
         // Macros Card
-        MiPlatoCard {
+        MiPlatoCard(borderGradient = listOf(MaterialTheme.colorScheme.secondary.copy(alpha = 0.5f), Color.Transparent)) {
             Column(modifier = Modifier.padding(24.dp), verticalArrangement = Arrangement.spacedBy(24.dp)) {
                 Text(
                     text = "Macronutrientes",
                     style = MaterialTheme.typography.titleLarge,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                    color = Color.White,
+                    fontWeight = FontWeight.Bold
                 )
 
-                MacroProgress(label = "Proteínas", currentValue = viewModel.proteinCurrent, targetValue = viewModel.proteinTarget)
-                MacroProgress(label = "Carbohidratos", currentValue = viewModel.carbsCurrent, targetValue = viewModel.carbsTarget)
-                MacroProgress(label = "Grasas", currentValue = viewModel.fatCurrent, targetValue = viewModel.fatTarget)
+                MacroProgress(label = "Proteínas", currentValue = viewModel.proteinCurrent, targetValue = viewModel.proteinTarget, color = MaterialTheme.colorScheme.primary)
+                MacroProgress(label = "Carbohidratos", currentValue = viewModel.carbsCurrent, targetValue = viewModel.carbsTarget, color = MaterialTheme.colorScheme.secondary)
+                MacroProgress(label = "Grasas", currentValue = viewModel.fatCurrent, targetValue = viewModel.fatTarget, color = MaterialTheme.colorScheme.tertiary)
             }
         }
 
         // Today's Meals Section
         Column(modifier = Modifier.fillMaxWidth()) {
-            Text(text = "Comidas de hoy", style = MaterialTheme.typography.headlineMedium)
+            Text(
+                text = "Comidas de hoy", 
+                style = MaterialTheme.typography.headlineMedium,
+                color = Color.White,
+                fontWeight = FontWeight.Bold
+            )
             
             Spacer(Modifier.height(16.dp))
 
@@ -126,19 +143,21 @@ fun DashboardScreen(
                 Surface(
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(24.dp),
-                    color = Color.Transparent,
-                    border = androidx.compose.foundation.BorderStroke(2.dp, MaterialTheme.colorScheme.outlineVariant)
+                    color = MaterialTheme.colorScheme.surface.copy(alpha = 0.3f),
+                    border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)
                 ) {
                     Column(
                         modifier = Modifier.padding(48.dp),
                         horizontalAlignment = Alignment.CenterHorizontally,
                         verticalArrangement = Arrangement.Center
                     ) {
-                        Text(text = "No hay datos aún", style = MaterialTheme.typography.titleLarge)
+                        Icon(Icons.Default.Restaurant, contentDescription = null, tint = MaterialTheme.colorScheme.outline, modifier = Modifier.size(48.dp))
+                        Spacer(Modifier.height(16.dp))
+                        Text(text = "No hay datos aún", style = MaterialTheme.typography.titleLarge, color = MaterialTheme.colorScheme.outline)
                     }
                 }
             } else {
-                Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
                     viewModel.recentFoods.forEach { food ->
                         FoodItemCard(food)
                     }
@@ -153,8 +172,8 @@ fun FoodItemCard(food: me.jesusurbinez.miplatov.data.FoodRecord) {
     Surface(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(16.dp),
-        color = MaterialTheme.colorScheme.surfaceContainerLowest,
-        shadowElevation = 1.dp
+        color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.4f),
+        border = androidx.compose.foundation.BorderStroke(0.5.dp, MaterialTheme.colorScheme.outlineVariant)
     ) {
         Row(
             modifier = Modifier.padding(16.dp),
@@ -163,7 +182,7 @@ fun FoodItemCard(food: me.jesusurbinez.miplatov.data.FoodRecord) {
             Surface(
                 modifier = Modifier.size(48.dp),
                 shape = RoundedCornerShape(12.dp),
-                color = MaterialTheme.colorScheme.primaryContainer
+                color = MaterialTheme.colorScheme.primary.copy(alpha = 0.1f)
             ) {
                 Icon(
                     Icons.Default.Restaurant,
@@ -174,18 +193,19 @@ fun FoodItemCard(food: me.jesusurbinez.miplatov.data.FoodRecord) {
             }
             Spacer(Modifier.width(16.dp))
             Column(modifier = Modifier.weight(1f)) {
-                Text(text = food.name, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                Text(text = food.name, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold, color = Color.White)
                 Text(
                     text = "${food.time} • ${food.calories} kcal",
                     style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.outline
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
             Column(horizontalAlignment = Alignment.End) {
                 Text(
                     text = "${food.protein}g P • ${food.carbs}g C",
                     style = MaterialTheme.typography.labelMedium,
-                    color = MaterialTheme.colorScheme.primary
+                    color = MaterialTheme.colorScheme.primary,
+                    fontWeight = FontWeight.Bold
                 )
                 Text(
                     text = "${food.fat}g G",
@@ -198,9 +218,14 @@ fun FoodItemCard(food: me.jesusurbinez.miplatov.data.FoodRecord) {
 }
 
 @Composable
-fun SummaryStat(label: String, value: String) {
+fun SummaryStat(label: String, value: String, color: Color = Color.White) {
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
-        Text(text = label, style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.outline)
-        Text(text = value, style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold)
+        Text(text = label, style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        Text(
+            text = value, 
+            style = MaterialTheme.typography.headlineMedium, 
+            fontWeight = FontWeight.ExtraBold,
+            color = color
+        )
     }
 }
